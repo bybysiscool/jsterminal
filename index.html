@@ -36,10 +36,18 @@
             bottom: 40px;
             left: 0;
         }
-        #frame {
+        #playground {
             width: 60%;
             height: 100%;
             border: none;
+            background-color: white;
+            position: relative;
+        }
+        #frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
         }
         .prompt {
             display: inline;
@@ -77,6 +85,7 @@
         }
         #startupModal.fade-out {
             opacity: 0;
+            pointer-events: none;
         }
         #startupModal h1 {
             margin-bottom: 20px;
@@ -85,8 +94,8 @@
 </head>
 <body>
     <div id="startupModal">
-        <h1>Initializing Terminal...</h1>
-        <p>Loading necessary resources, please wait.</p>
+        <h1>Initializing JavaScript Terminal...</h1>
+        <p>Note: This terminal is for running JavaScript code. Use the "website" command to load an external website.</p>
         <button id="startButton">Start Terminal</button>
     </div>
     
@@ -96,105 +105,99 @@
         <div id="output"></div>
         <input type="text" id="input" placeholder="Type a command or JavaScript code..." />
     </div>
-    <iframe id="frame" src="https://example.com"></iframe>
+    
+    <div id="playground">
+        <iframe id="frame"></iframe>
+    </div>
 
     <script>
         const terminal = document.getElementById('terminal');
         const input = document.getElementById('input');
-        const prompt = document.getElementById('prompt');
-        const cursor = document.getElementById('cursor');
         const output = document.getElementById('output');
-        const iframe = document.getElementById('frame');
+        const prompt = document.getElementById('prompt');
+        const frame = document.getElementById('frame');
+        const playground = document.getElementById('playground');
         const startupModal = document.getElementById('startupModal');
         const startButton = document.getElementById('startButton');
-        let runInIframe = true;  // Toggle between iframe and direct JS execution
-
-        // Terminal bootup sequence
-        function bootUpTerminal() {
-            appendToTerminal("Booting up JavaScript Terminal...");
-            appendToTerminal("Loading resources...");
-            setTimeout(() => {
-                appendToTerminal("Welcome to the JavaScript Terminal");
-                appendToTerminal("Disclaimer: This is not a proxy. Any misuse or illegal activity will be your responsibility.");
-                appendToTerminal("You can run JavaScript or navigate websites. Type 'help' for commands.");
-            }, 2000);
-        }
-
-        // Function to append text to terminal
-        function appendToTerminal(text) {
-            output.innerHTML += text + '<br>';
-            terminal.scrollTop = terminal.scrollHeight; 
-        }
-
-        // Start Button Click Event
-        startButton.onclick = () => {
+        
+        // Bootup Screen fadeout
+        startButton.addEventListener('click', () => {
             startupModal.classList.add('fade-out');
             setTimeout(() => {
                 startupModal.style.display = 'none';
-                terminal.style.display = 'block';
-                bootUpTerminal();
-                input.focus(); 
             }, 1000);
-        };
-
-        // Input handling
+        });
+        
+        // Terminal Logic
+        let jsMode = true; // default is to run JavaScript
+        input.focus();
         input.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 const command = input.value.trim();
-                appendToTerminal(`${prompt.textContent}${command}`);
-                input.value = '';
-
-                // Command handling
-                if (command === 'toggle js') {
-                    runInIframe = !runInIframe;
-                    appendToTerminal(`JavaScript execution toggled to: ${runInIframe ? 'iframe' : 'main page'}`);
-                } else if (command.startsWith('http://') || command.startsWith('https://')) {
-                    if (runInIframe) {
-                        iframe.src = command;
-                    } else {
-                        appendToTerminal("Navigate to websites while in 'main page' JS mode is not allowed.");
-                    }
-                } else if (command === 'help') {
-                    appendToTerminal("Available commands:");
-                    appendToTerminal("'help' - Show this message.");
-                    appendToTerminal("'http://example.com' - Navigate to a website.");
-                    appendToTerminal("'fullscreen terminal' - Fullscreen the terminal.");
-                    appendToTerminal("'fullscreen website' - Fullscreen the website.");
-                    appendToTerminal("'theme default' - Change to the default theme.");
-                    appendToTerminal("'theme custom' - Apply your custom theme.");
-                    appendToTerminal("'toggle js' - Toggle between iframe JavaScript execution and main page.");
-                } else if (command === 'fullscreen terminal') {
-                    if (!document.fullscreenElement) {
-                        terminal.requestFullscreen();
-                    } else {
-                        if (document.exitFullscreen) {
-                            document.exitFullscreen();
-                        }
-                    }
-                } else if (command === 'fullscreen website') {
-                    if (!document.fullscreenElement) {
-                        iframe.requestFullscreen();
-                    } else {
-                        if (document.exitFullscreen) {
-                            document.exitFullscreen();
-                        }
+                output.innerHTML += `\njs-terminal> ${command}`;
+                
+                // Handle website embedding
+                if (command.startsWith('website ')) {
+                    const url = command.split(' ')[1];
+                    if (url) {
+                        frame.src = url;
+                        frame.style.display = 'block';
                     }
                 } else {
+                    // Execute JavaScript code
                     try {
-                        if (runInIframe) {
-                            appendToTerminal("Running JavaScript in iframe is restricted by the browser for cross-origin content.");
-                        } else {
+                        if (jsMode) {
                             const result = eval(command);
-                            appendToTerminal(result);
+                            output.innerHTML += `\n${result}`;
                         }
-                    } catch (error) {
-                        appendToTerminal(`Error: ${error.message}`);
+                    } catch (err) {
+                        output.innerHTML += `\nError: ${err.message}`;
                     }
                 }
-                appendToTerminal('');
-                input.focus(); 
+
+                input.value = '';
+                terminal.scrollTop = terminal.scrollHeight;
             }
         });
+
+        // Allow user to toggle between JavaScript mode and website mode
+        function toggleJSMode() {
+            jsMode = !jsMode;
+            if (jsMode) {
+                output.innerHTML += "\nSwitched to JavaScript execution mode.";
+                frame.style.display = 'none';
+            } else {
+                output.innerHTML += "\nSwitched to website viewing mode.";
+                frame.style.display = 'block';
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'F12') {
+                toggleJSMode();
+            }
+        });
+
+        // Save preferences in localStorage
+        function savePreferences(theme, fontSize, color) {
+            localStorage.setItem('terminalTheme', theme);
+            localStorage.setItem('terminalFontSize', fontSize);
+            localStorage.setItem('terminalColor', color);
+        }
+
+        // Load preferences
+        function loadPreferences() {
+            const theme = localStorage.getItem('terminalTheme');
+            const fontSize = localStorage.getItem('terminalFontSize');
+            const color = localStorage.getItem('terminalColor');
+            if (theme) terminal.style.backgroundColor = theme;
+            if (fontSize) terminal.style.fontSize = fontSize;
+            if (color) terminal.style.color = color;
+        }
+
+        loadPreferences(); // Load saved preferences on startup
     </script>
 </body>
 </html>
