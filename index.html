@@ -7,6 +7,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             margin: 0;
             height: 100vh;
             font-family: 'Courier New', Courier, monospace;
@@ -14,9 +15,9 @@
             color: #00ff00;
         }
         #terminal {
-            width: 40%;
-            height: 70%;
-            border-right: 1px solid #00ff00;
+            width: 100%;
+            height: 40%;
+            border-bottom: 1px solid #00ff00;
             padding: 10px;
             overflow-y: auto;
             background-color: #111;
@@ -37,8 +38,8 @@
             left: 0;
         }
         #playground {
-            width: 60%;
-            height: 100%;
+            width: 100%;
+            height: 60%;
             border: none;
             background-color: white;
             position: relative;
@@ -47,7 +48,7 @@
             width: 100%;
             height: 100%;
             border: none;
-            display: none;
+            display: block;
         }
         .prompt {
             display: inline;
@@ -135,14 +136,14 @@
         <div id="output"></div>
         <input type="text" id="input" placeholder="Type a command or JavaScript code..." />
     </div>
-    
-    <div id="playground">
-        <iframe id="frame"></iframe>
-    </div>
 
     <div id="htmlInputSection">
         <textarea id="htmlCode" placeholder="Enter your HTML code here..."></textarea>
         <button id="runButton">Run HTML</button>
+    </div>
+
+    <div id="playground">
+        <iframe id="frame"></iframe>
     </div>
 
     <script>
@@ -222,7 +223,7 @@
             }
         }
 
-        // Allow user to toggle between JavaScript mode and website mode
+        // Function to toggle between JavaScript mode and website mode
         function toggleJSMode() {
             jsMode = !jsMode;
             if (jsMode) {
