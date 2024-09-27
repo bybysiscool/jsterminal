@@ -23,7 +23,6 @@
             white-space: pre-wrap;
             font-size: 16px;
             position: relative;
-            display: none;
         }
         #input {
             width: calc(100% - 20px);
@@ -82,17 +81,6 @@
         #startupModal h1 {
             margin-bottom: 20px;
         }
-        #startupModal button {
-            background-color: #222;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 10px 20px;
-            cursor: pointer;
-            outline: none;
-        }
-        .theme-options {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -106,7 +94,7 @@
         <span id="prompt" class="prompt">js-terminal> </span>
         <span id="cursor" class="cursor"></span>
         <div id="output"></div>
-        <input type="text" id="input" placeholder="Type a URL or JavaScript code..." />
+        <input type="text" id="input" placeholder="Type a command or JavaScript code..." />
     </div>
     <iframe id="frame" src="https://example.com"></iframe>
 
@@ -119,6 +107,7 @@
         const iframe = document.getElementById('frame');
         const startupModal = document.getElementById('startupModal');
         const startButton = document.getElementById('startButton');
+        let runInIframe = true;  // Toggle between iframe and direct JS execution
 
         // Terminal bootup sequence
         function bootUpTerminal() {
@@ -126,9 +115,8 @@
             appendToTerminal("Loading resources...");
             setTimeout(() => {
                 appendToTerminal("Welcome to the JavaScript Terminal");
-                appendToTerminal("You can navigate to websites or execute JavaScript code.");
-                appendToTerminal("Disclaimer: This is not a proxy. Any misuse or illegal activity will be your own responsibility.");
-                appendToTerminal("Type 'help' for a list of available commands.");
+                appendToTerminal("Disclaimer: This is not a proxy. Any misuse or illegal activity will be your responsibility.");
+                appendToTerminal("You can run JavaScript or navigate websites. Type 'help' for commands.");
             }, 2000);
         }
 
@@ -157,8 +145,15 @@
                 input.value = '';
 
                 // Command handling
-                if (command.startsWith('http://') || command.startsWith('https://')) {
-                    iframe.src = command;
+                if (command === 'toggle js') {
+                    runInIframe = !runInIframe;
+                    appendToTerminal(`JavaScript execution toggled to: ${runInIframe ? 'iframe' : 'main page'}`);
+                } else if (command.startsWith('http://') || command.startsWith('https://')) {
+                    if (runInIframe) {
+                        iframe.src = command;
+                    } else {
+                        appendToTerminal("Navigate to websites while in 'main page' JS mode is not allowed.");
+                    }
                 } else if (command === 'help') {
                     appendToTerminal("Available commands:");
                     appendToTerminal("'help' - Show this message.");
@@ -167,6 +162,7 @@
                     appendToTerminal("'fullscreen website' - Fullscreen the website.");
                     appendToTerminal("'theme default' - Change to the default theme.");
                     appendToTerminal("'theme custom' - Apply your custom theme.");
+                    appendToTerminal("'toggle js' - Toggle between iframe JavaScript execution and main page.");
                 } else if (command === 'fullscreen terminal') {
                     if (!document.fullscreenElement) {
                         terminal.requestFullscreen();
@@ -183,27 +179,14 @@
                             document.exitFullscreen();
                         }
                     }
-                } else if (command === 'theme default') {
-                    terminal.style.backgroundColor = '#111';
-                    terminal.style.color = '#00ff00';
-                    terminal.style.fontFamily = "'Courier New', Courier, monospace";
-                    localStorage.setItem('terminalTheme', JSON.stringify({
-                        backgroundColor: '#111',
-                        color: '#00ff00',
-                        fontFamily: "'Courier New', Courier, monospace"
-                    }));
-                } else if (command === 'theme custom') {
-                    // Retrieve custom theme from localStorage
-                    const savedTheme = JSON.parse(localStorage.getItem('terminalTheme'));
-                    if (savedTheme) {
-                        terminal.style.backgroundColor = savedTheme.backgroundColor;
-                        terminal.style.color = savedTheme.color;
-                        terminal.style.fontFamily = savedTheme.fontFamily;
-                    }
                 } else {
                     try {
-                        const result = iframe.contentWindow.eval(command);
-                        appendToTerminal(result);
+                        if (runInIframe) {
+                            appendToTerminal("Running JavaScript in iframe is restricted by the browser for cross-origin content.");
+                        } else {
+                            const result = eval(command);
+                            appendToTerminal(result);
+                        }
                     } catch (error) {
                         appendToTerminal(`Error: ${error.message}`);
                     }
@@ -212,14 +195,6 @@
                 input.focus(); 
             }
         });
-
-        // Apply saved theme on load
-        const savedTheme = JSON.parse(localStorage.getItem('terminalTheme'));
-        if (savedTheme) {
-            terminal.style.backgroundColor = savedTheme.backgroundColor;
-            terminal.style.color = savedTheme.color;
-            terminal.style.fontFamily = savedTheme.fontFamily;
-        }
     </script>
 </body>
 </html>
