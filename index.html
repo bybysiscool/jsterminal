@@ -7,17 +7,23 @@
     <style>
         body {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             margin: 0;
             height: 100vh;
             font-family: 'Courier New', Courier, monospace;
             background-color: #000;
             color: #00ff00;
         }
+        #leftSection {
+            display: flex;
+            flex-direction: column;
+            width: 50%;
+            border-right: 1px solid #00ff00;
+            height: 100vh;
+            background-color: #111;
+        }
         #terminal {
-            width: 100%;
-            height: 40%;
-            border-bottom: 1px solid #00ff00;
+            height: 50%;
             padding: 10px;
             overflow-y: auto;
             background-color: #111;
@@ -37,9 +43,38 @@
             bottom: 40px;
             left: 0;
         }
-        #playground {
+        #htmlInputSection {
+            height: 50%;
+            background-color: #111;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid #00ff00;
+        }
+        #htmlCode {
             width: 100%;
-            height: 60%;
+            height: 70%;
+            background-color: #222;
+            color: #00ff00;
+            border: none;
+            padding: 10px;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            caret-color: #00ff00;
+        }
+        #runButton {
+            width: 100px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #00ff00;
+            color: #111;
+            border: none;
+            cursor: pointer;
+        }
+        #playground {
+            width: 50%;
+            height: 100vh;
             border: none;
             background-color: white;
             position: relative;
@@ -48,7 +83,6 @@
             width: 100%;
             height: 100%;
             border: none;
-            display: block;
         }
         .prompt {
             display: inline;
@@ -91,36 +125,6 @@
         #startupModal h1 {
             margin-bottom: 20px;
         }
-        #htmlInputSection {
-            width: 100%;
-            height: 30%;
-            background-color: #111;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            border-top: 1px solid #00ff00;
-        }
-        #htmlCode {
-            width: 100%;
-            height: 70%;
-            background-color: #222;
-            color: #00ff00;
-            border: none;
-            padding: 10px;
-            outline: none;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            caret-color: #00ff00;
-        }
-        #runButton {
-            width: 100px;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #00ff00;
-            color: #111;
-            border: none;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -130,16 +134,18 @@
         <button id="startButton">Start Terminal</button>
     </div>
     
-    <div id="terminal">
-        <span id="prompt" class="prompt">js-terminal> </span>
-        <span id="cursor" class="cursor"></span>
-        <div id="output"></div>
-        <input type="text" id="input" placeholder="Type a command or JavaScript code..." />
-    </div>
-
-    <div id="htmlInputSection">
-        <textarea id="htmlCode" placeholder="Enter your HTML code here..."></textarea>
-        <button id="runButton">Run HTML</button>
+    <div id="leftSection">
+        <div id="terminal">
+            <span id="prompt" class="prompt">js-terminal> </span>
+            <span id="cursor" class="cursor"></span>
+            <div id="output"></div>
+            <input type="text" id="input" placeholder="Type a command or JavaScript code..." />
+        </div>
+    
+        <div id="htmlInputSection">
+            <textarea id="htmlCode" placeholder="Enter your HTML code here..."></textarea>
+            <button id="runButton">Run HTML</button>
+        </div>
     </div>
 
     <div id="playground">
@@ -181,7 +187,7 @@
                         frame.style.display = 'block';
                     }
                 } else if (command.startsWith('fullscreen terminal')) {
-                    openFullscreen(terminal);
+                    openFullscreen(document.getElementById('leftSection'));
                 } else if (command.startsWith('fullscreen playground')) {
                     openFullscreen(document.getElementById('playground'));
                 } else if (command === 'help') {
