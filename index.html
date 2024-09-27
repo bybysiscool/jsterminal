@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Terminal</title>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #00ff00;
+        }
+        #terminal {
+            width: 40%;
+            height: 100%;
+            border-right: 1px solid #00ff00;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #111;
+            white-space: pre-wrap;
+            font-size: 16px;
+            position: relative;
+            display: none;
+        }
+        #input {
+            width: calc(100% - 20px);
+            border: none;
+            padding: 10px;
+            background-color: #222;
+            color: #00ff00;
+            outline: none;
+            caret-color: #00ff00;
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+        }
+        #frame {
+            width: 60%;
+            height: 100%;
+            border: none;
+        }
+        .prompt {
+            display: inline;
+        }
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00ff00;
+            animation: blink 1s step-start infinite;
+            vertical-align: bottom;
+        }
+        @keyframes blink {
+            50% {
+                background-color: transparent;
+            }
+        }
+        #startupModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+        #startupModal.fade-out {
+            opacity: 0;
+        }
+        #startupModal h1 {
+            margin-bottom: 20px;
+        }
+        #startupModal button {
+            background-color: #222;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            outline: none;
+        }
+        .theme-options {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="startupModal">
+        <h1>Initializing Terminal...</h1>
+        <p>Loading necessary resources, please wait.</p>
+        <button id="startButton">Start Terminal</button>
+    </div>
+    
+    <div id="terminal">
+        <span id="prompt" class="prompt">js-terminal> </span>
+        <span id="cursor" class="cursor"></span>
+        <div id="output"></div>
+        <input type="text" id="input" placeholder="Type a URL or JavaScript code..." />
+    </div>
+    <iframe id="frame" src="https://example.com"></iframe>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('input');
+        const prompt = document.getElementById('prompt');
+        const cursor = document.getElementById('cursor');
+        const output = document.getElementById('output');
+        const iframe = document.getElementById('frame');
+        const startupModal = document.getElementById('startupModal');
+        const startButton = document.getElementById('startButton');
+
+        // Terminal bootup sequence
+        function bootUpTerminal() {
+            appendToTerminal("Booting up JavaScript Terminal...");
+            appendToTerminal("Loading resources...");
+            setTimeout(() => {
+                appendToTerminal("Welcome to the JavaScript Terminal");
+                appendToTerminal("You can navigate to websites or execute JavaScript code.");
+                appendToTerminal("Disclaimer: This is not a proxy. Any misuse or illegal activity will be your own responsibility.");
+                appendToTerminal("Type 'help' for a list of available commands.");
+            }, 2000);
+        }
+
+        // Function to append text to terminal
+        function appendToTerminal(text) {
+            output.innerHTML += text + '<br>';
+            terminal.scrollTop = terminal.scrollHeight; 
+        }
+
+        // Start Button Click Event
+        startButton.onclick = () => {
+            startupModal.classList.add('fade-out');
+            setTimeout(() => {
+                startupModal.style.display = 'none';
+                terminal.style.display = 'block';
+                bootUpTerminal();
+                input.focus(); 
+            }, 1000);
+        };
+
+        // Input handling
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const command = input.value.trim();
+                appendToTerminal(`${prompt.textContent}${command}`);
+                input.value = '';
+
+                // Command handling
+                if (command.startsWith('http://') || command.startsWith('https://')) {
+                    iframe.src = command;
+                } else if (command === 'help') {
+                    appendToTerminal("Available commands:");
+                    appendToTerminal("'help' - Show this message.");
+                    appendToTerminal("'http://example.com' - Navigate to a website.");
+                    appendToTerminal("'fullscreen terminal' - Fullscreen the terminal.");
+                    appendToTerminal("'fullscreen website' - Fullscreen the website.");
+                    appendToTerminal("'theme default' - Change to the default theme.");
+                    appendToTerminal("'theme custom' - Apply your custom theme.");
+                } else if (command === 'fullscreen terminal') {
+                    if (!document.fullscreenElement) {
+                        terminal.requestFullscreen();
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                    }
+                } else if (command === 'fullscreen website') {
+                    if (!document.fullscreenElement) {
+                        iframe.requestFullscreen();
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                    }
+                } else if (command === 'theme default') {
+                    terminal.style.backgroundColor = '#111';
+                    terminal.style.color = '#00ff00';
+                    terminal.style.fontFamily = "'Courier New', Courier, monospace";
+                    localStorage.setItem('terminalTheme', JSON.stringify({
+                        backgroundColor: '#111',
+                        color: '#00ff00',
+                        fontFamily: "'Courier New', Courier, monospace"
+                    }));
+                } else if (command === 'theme custom') {
+                    // Retrieve custom theme from localStorage
+                    const savedTheme = JSON.parse(localStorage.getItem('terminalTheme'));
+                    if (savedTheme) {
+                        terminal.style.backgroundColor = savedTheme.backgroundColor;
+                        terminal.style.color = savedTheme.color;
+                        terminal.style.fontFamily = savedTheme.fontFamily;
+                    }
+                } else {
+                    try {
+                        const result = iframe.contentWindow.eval(command);
+                        appendToTerminal(result);
+                    } catch (error) {
+                        appendToTerminal(`Error: ${error.message}`);
+                    }
+                }
+                appendToTerminal('');
+                input.focus(); 
+            }
+        });
+
+        // Apply saved theme on load
+        const savedTheme = JSON.parse(localStorage.getItem('terminalTheme'));
+        if (savedTheme) {
+            terminal.style.backgroundColor = savedTheme.backgroundColor;
+            terminal.style.color = savedTheme.color;
+            terminal.style.fontFamily = savedTheme.fontFamily;
+        }
+    </script>
+</body>
+</html>
