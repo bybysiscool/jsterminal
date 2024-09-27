@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Terminal</title>
+    <title>JavaScript Terminal with HTML Runner</title>
     <style>
         body {
             display: flex;
@@ -15,7 +15,7 @@
         }
         #terminal {
             width: 40%;
-            height: 100%;
+            height: 70%;
             border-right: 1px solid #00ff00;
             padding: 10px;
             overflow-y: auto;
@@ -90,6 +90,36 @@
         #startupModal h1 {
             margin-bottom: 20px;
         }
+        #htmlInputSection {
+            width: 100%;
+            height: 30%;
+            background-color: #111;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid #00ff00;
+        }
+        #htmlCode {
+            width: 100%;
+            height: 70%;
+            background-color: #222;
+            color: #00ff00;
+            border: none;
+            padding: 10px;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            caret-color: #00ff00;
+        }
+        #runButton {
+            width: 100px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #00ff00;
+            color: #111;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -110,12 +140,19 @@
         <iframe id="frame"></iframe>
     </div>
 
+    <div id="htmlInputSection">
+        <textarea id="htmlCode" placeholder="Enter your HTML code here..."></textarea>
+        <button id="runButton">Run HTML</button>
+    </div>
+
     <script>
         const terminal = document.getElementById('terminal');
         const input = document.getElementById('input');
         const output = document.getElementById('output');
         const prompt = document.getElementById('prompt');
         const frame = document.getElementById('frame');
+        const htmlCode = document.getElementById('htmlCode');
+        const runButton = document.getElementById('runButton');
         const startupModal = document.getElementById('startupModal');
         const startButton = document.getElementById('startButton');
         
@@ -145,7 +182,7 @@
                 } else if (command.startsWith('fullscreen terminal')) {
                     openFullscreen(terminal);
                 } else if (command.startsWith('fullscreen playground')) {
-                    openFullscreen(playground);
+                    openFullscreen(document.getElementById('playground'));
                 } else if (command === 'help') {
                     output.innerHTML += `\nAvailable commands:\n- website <url>: Load a website into the playground.\n- fullscreen terminal: Enter fullscreen for the terminal.\n- fullscreen playground: Enter fullscreen for the playground.`;
                 } else {
@@ -163,6 +200,13 @@
                 input.value = '';
                 terminal.scrollTop = terminal.scrollHeight;
             }
+        });
+
+        // Run HTML Code in Playground
+        runButton.addEventListener('click', () => {
+            const htmlContent = htmlCode.value;
+            frame.srcdoc = htmlContent;
+            frame.style.display = 'block';
         });
 
         // Function to handle fullscreen
