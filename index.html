@@ -116,7 +116,6 @@
         const output = document.getElementById('output');
         const prompt = document.getElementById('prompt');
         const frame = document.getElementById('frame');
-        const playground = document.getElementById('playground');
         const startupModal = document.getElementById('startupModal');
         const startButton = document.getElementById('startButton');
         
@@ -136,13 +135,19 @@
                 const command = input.value.trim();
                 output.innerHTML += `\njs-terminal> ${command}`;
                 
-                // Handle website embedding
+                // Handle commands
                 if (command.startsWith('website ')) {
                     const url = command.split(' ')[1];
                     if (url) {
                         frame.src = url;
                         frame.style.display = 'block';
                     }
+                } else if (command.startsWith('fullscreen terminal')) {
+                    openFullscreen(terminal);
+                } else if (command.startsWith('fullscreen playground')) {
+                    openFullscreen(playground);
+                } else if (command === 'help') {
+                    output.innerHTML += `\nAvailable commands:\n- website <url>: Load a website into the playground.\n- fullscreen terminal: Enter fullscreen for the terminal.\n- fullscreen playground: Enter fullscreen for the playground.`;
                 } else {
                     // Execute JavaScript code
                     try {
@@ -159,6 +164,19 @@
                 terminal.scrollTop = terminal.scrollHeight;
             }
         });
+
+        // Function to handle fullscreen
+        function openFullscreen(element) {
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { // Firefox
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE/Edge
+                element.msRequestFullscreen();
+            }
+        }
 
         // Allow user to toggle between JavaScript mode and website mode
         function toggleJSMode() {
