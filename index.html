@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Terminal with HTML Runner</title>
+    <title>JavaScript Terminal with HTML Runner and Proxy</title>
     <style>
         body {
             display: flex;
@@ -106,7 +106,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             color: #00ff00;
             display: flex;
             flex-direction: column;
@@ -125,13 +125,17 @@
         #startupModal h1 {
             margin-bottom: 20px;
         }
+        #systemMessages {
+            white-space: pre-wrap;
+            font-size: 14px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
     <div id="startupModal">
-        <h1>Initializing JavaScript Terminal...</h1>
-        <p>Note: This terminal is for running JavaScript code. Use the "website" command to load an external website.</p>
-        <button id="startButton">Start Terminal</button>
+        <h1>JavaScript Terminal Boot Sequence...</h1>
+        <div id="systemMessages"></div>
     </div>
     
     <div id="leftSection">
@@ -161,15 +165,34 @@
         const htmlCode = document.getElementById('htmlCode');
         const runButton = document.getElementById('runButton');
         const startupModal = document.getElementById('startupModal');
-        const startButton = document.getElementById('startButton');
+        const systemMessages = document.getElementById('systemMessages');
         
-        // Bootup Screen fadeout
-        startButton.addEventListener('click', () => {
-            startupModal.classList.add('fade-out');
-            setTimeout(() => {
-                startupModal.style.display = 'none';
-            }, 1000);
-        });
+        // Bootup Sequence
+        const bootupMessages = [
+            "Checking system integrity... [OK]",
+            "Loading terminal environment... [OK]",
+            "Connecting to servers... [OK]",
+            "Initializing user session... [OK]",
+            "System boot complete. Ready to execute."
+        ];
+        
+        let currentMessageIndex = 0;
+        function displayNextBootupMessage() {
+            if (currentMessageIndex < bootupMessages.length) {
+                systemMessages.innerHTML += bootupMessages[currentMessageIndex] + "\n";
+                currentMessageIndex++;
+                setTimeout(displayNextBootupMessage, 1000);
+            } else {
+                setTimeout(() => {
+                    startupModal.classList.add('fade-out');
+                    setTimeout(() => {
+                        startupModal.style.display = 'none';
+                    }, 1000);
+                }, 1000);
+            }
+        }
+        
+        setTimeout(displayNextBootupMessage, 1000);
         
         // Terminal Logic
         let jsMode = true; // default is to run JavaScript
@@ -190,6 +213,17 @@
                     openFullscreen(document.getElementById('leftSection'));
                 } else if (command.startsWith('fullscreen playground')) {
                     openFullscreen(document.getElementById('playground'));
+                } else if (command.startsWith('proxy ')) {
+                    const parts = command.split(' ');
+                    if (parts.length === 3) {
+                        const proxyUrl = parts[1];
+                        const siteUrl = parts[2];
+                        const proxiedUrl = `${proxyUrl}?target=${encodeURIComponent(siteUrl)}`;
+                        frame.src = proxiedUrl;
+                        output.innerHTML += "\nLoading site through proxy...";
+                    } else {
+                        output.innerHTML += "\nError: Invalid proxy command format.";
+                    }
                 } else if (command === 'help') {
                     output.innerHTML += `\nAvailable commands:\n- website <url>: Load a website into the playground.\n- fullscreen terminal: Enter fullscreen for the terminal.\n- fullscreen playground: Enter fullscreen for the playground.`;
                 } else {
@@ -229,44 +263,12 @@
             }
         }
 
-        // Function to toggle between JavaScript mode and website mode
-        function toggleJSMode() {
-            jsMode = !jsMode;
-            if (jsMode) {
-                output.innerHTML += "\nSwitched to JavaScript execution mode.";
-                frame.style.display = 'none';
-            } else {
-                output.innerHTML += "\nSwitched to website viewing mode.";
-                frame.style.display = 'block';
-            }
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'F12') {
-                toggleJSMode();
-            }
-        });
-
         // Save preferences in localStorage
         function savePreferences(theme, fontSize, color) {
             localStorage.setItem('terminalTheme', theme);
             localStorage.setItem('terminalFontSize', fontSize);
             localStorage.setItem('terminalColor', color);
         }
-
-        // Load preferences
-        function loadPreferences() {
-            const theme = localStorage.getItem('terminalTheme');
-            const fontSize = localStorage.getItem('terminalFontSize');
-            const color = localStorage.getItem('terminalColor');
-            if (theme) terminal.style.backgroundColor = theme;
-            if (fontSize) terminal.style.fontSize = fontSize;
-            if (color) terminal.style.color = color;
-        }
-
-        loadPreferences(); // Load saved preferences on startup
     </script>
 </body>
 </html>
