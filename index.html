@@ -11,11 +11,12 @@
             background-color: black;
             color: white;
             font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+            overflow: hidden; /* Prevent scrolling */
         }
 
         #terminal {
             padding: 20px;
-            min-height: 100vh;
+            height: 100vh; /* Full height */
             display: flex;
             flex-direction: column;
             overflow-y: auto;
@@ -24,6 +25,8 @@
         #output {
             flex-grow: 1;
             white-space: pre-wrap;
+            overflow-y: auto; /* Allow scrolling in output */
+            max-height: calc(100vh - 60px); /* Adjust height for input line */
         }
 
         #input-line {
@@ -182,10 +185,7 @@
                 if (cmd === 'lore') {
                     gameState.foundLore = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'A hidden history unravels...\n';
-                    output.innerHTML += 'In a world divided, where light battles shadow, whispers of a great fracture circulate. Many seek the truth, yet few possess the courage to face it. Will you become a seeker of knowledge, or will you turn a blind eye?\n';
-                    output.innerHTML += 'The sages speak of a key hidden in plain sight—will you dare to find it?\n';
-                    applyEffect('decision-effect', 'The choice is yours: "seek" or "deny".');
+                    output.innerHTML += longLore(); // Call the long lore function
                 } else if (cmd in essentialCommands) {
                     output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
@@ -237,7 +237,9 @@
             }
         }
 
-        // Apply effects
+        //
+
+ Apply effects
         function applyEffect(className, message) {
             output.innerHTML += `<span class="${className}">${message}</span>\n`;
         }
@@ -247,7 +249,11 @@
             gameState.ended = true;
             output.innerHTML += `Game Over: You ${action}.\n`;
             output.innerHTML += message + '\n';
-            cursor.style.display = 'none'; // Hide the cursor
+            output.innerHTML += 'The terminal begins to disintegrate into shadows...\n';
+            setTimeout(() => {
+                output.innerHTML += 'You are left in the void, a whisper in the cosmos.\n';
+                cursor.style.display = 'none'; // Hide the cursor
+            }, 3000);
         }
 
         // Boot-up sequence
@@ -259,6 +265,34 @@
                 booting = false;
                 output.innerHTML += 'Terminal ready. Type "start" or essential commands like "echo", "date", or "website".\n';
             }, 3000);
+        }
+
+        // Long lore about seeking the creator
+        function longLore() {
+            return `
+The shadows whisper secrets of an ancient creator, a being whose vision brought forth the light of existence. 
+Yet, within this light, darkness swells—a void eager to consume all that it touches. 
+
+You find yourself at a crossroads, where the fabric of reality wavers. 
+Legends speak of a hidden truth, buried deep beneath layers of deception. 
+
+To seek the creator is to embark on a perilous journey—a quest where your will is tested, 
+and the boundaries of light and shadow blur. What lies beyond the veil is not merely knowledge, 
+but a revelation that could unravel the very essence of existence.
+
+The terminal serves as a gateway, a bridge to the unseen realms. 
+Each command you type resonates with the pulse of the universe, echoing through the corridors of time. 
+You can feel the weight of forgotten tales pressing upon you, urging you to listen, to learn, to act.
+
+But beware! Many have ventured forth, yet few have returned. 
+The shadows do not take kindly to the curious; they are guardians of secrets untold, ready to ensnare the unwary. 
+In your pursuit, you may find allies and adversaries alike, as the lines between friend and foe blur in the haze of uncertainty.
+
+Will you wield the light of truth and confront the shadows? 
+Or will you succumb to the allure of ignorance, forever wandering the digital abyss?
+
+Your journey has only just begun, and the path you choose may change everything... 
+            `;
         }
 
         // Open website in about:blank embed
