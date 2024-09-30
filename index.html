@@ -126,15 +126,12 @@
 
     <iframe id="web-view"></iframe>
 
-    <audio id="typeSound" src="type-sound.mp3" preload="auto"></audio>
-
     <script>
         const terminal = document.getElementById('terminal');
         const output = document.getElementById('output');
         const input = document.getElementById('input');
         const cursor = document.getElementById('cursor');
         const webView = document.getElementById('web-view');
-        const typeSound = document.getElementById('typeSound');
 
         let gameState = {
             started: false,
@@ -142,24 +139,15 @@
             decision1: false,
             decision2: false,
             decision3: false,
-            decision4: false,
-            decision5: false,
-            decision6: false,
-            decision7: false,
-            decision8: false,
-            decision9: false,
-            decision10: false,
-            decision11: false,
-            decision12: false,
-            decision13: false,
-            decision14: false,
-            decision15: false,
-            decision16: false,
             ended: false,
+            choices: [],
         };
 
         let booting = true;
         let userInput = '';
+
+        // Load sound
+        const typingSound = new Audio('typing-sound.mp3'); // Add a typing sound file here
 
         // Input system
         document.addEventListener('keydown', function(event) {
@@ -208,7 +196,7 @@
             } else if (gameState.started && !gameState.foundLore) {
                 if (cmd === 'lore') {
                     gameState.foundLore = true;
-                    typeWriter(longLore());
+                    typeWriter(longLore(), 50); // Faster for lore
                 } else if (cmd in essentialCommands) {
                     typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
@@ -217,7 +205,7 @@
             } else if (gameState.foundLore && !gameState.decision1) {
                 if (cmd === 'seek') {
                     gameState.decision1 = true;
-                    typeWriter('You take a deep breath and plunge into the shadows of truth...\nA voice echoes, "What do you fear the most? The truth or the shadows?"\nDo you FACE the shadows or HIDE from them?\n');
+                    typeWriter('You take a deep breath and plunge into the shadows of truth...\nA voice echoes, "What do you fear the most? The truth or the shadows?"\nDo you FACE the shadows or HIDE from them?\n', 50); // Faster for decisions
                     applyEffect('decision-effect', 'Choose "face" or "hide".');
                 } else if (cmd === 'deny') {
                     gameState.decision1 = true;
@@ -230,7 +218,7 @@
             } else if (gameState.decision1 && !gameState.decision2) {
                 if (cmd === 'face') {
                     gameState.decision2 = true;
-                    typeWriter('You embrace the shadows, uncovering the ancient secrets they guard...\nIn the heart of darkness lies the essence of creation. Do you CHALLENGE the essence or EMBRACE it?\n');
+                    typeWriter('You embrace the shadows, uncovering the ancient secrets they guard...\nIn the heart of darkness lies the essence of creation. Do you CHALLENGE the essence or EMBRACE it?\n', 50);
                     applyEffect('decision-effect', 'Choose "challenge" or "embrace".');
                 } else if (cmd === 'hide') {
                     gameState.decision2 = true;
@@ -250,25 +238,38 @@
                 } else if (cmd in essentialCommands) {
                     typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    typeWriter('Invalid command. Type "challenge" or "
-
-embrace".\n');
+                    typeWriter('Invalid command. Type "challenge" or "embrace".\n');
                 }
             }
-            // Add more decisions as needed
+
+            // Add further decisions leading to the creator
+            if (gameState.decision3) {
+                // Additional 15 decisions can be structured here
+                // Example:
+               
+
+ // Add logic for subsequent choices based on previous decisions
+                // You can continue chaining decisions as needed
+            }
+
+            // Handle general commands
+            if (cmd in essentialCommands) {
+                typeWriter(`${essentialCommands[cmd](args)}\n`);
+            }
         }
 
         // Typewriter effect
-        function typeWriter(text) {
+        function typeWriter(text, speed = 100) {
+            const chars = text.split('');
             let index = 0;
+
             function typeNextChar() {
-                if (index < text.length) {
-                    output.innerHTML += text.charAt(index);
-                    if (text.charAt(index) !== '\n') {
-                        typeSound.play(); // Play typing sound
-                    }
+                if (index < chars.length) {
+                    output.innerHTML += chars[index];
+                    terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
+                    typingSound.play(); // Play typing sound
                     index++;
-                    setTimeout(typeNextChar, text.charAt(index - 1) === '\n' ? 500 : 100); // Adjust speed for newline
+                    setTimeout(typeNextChar, speed);
                 } else {
                     output.innerHTML += '\n'; // New line after finishing
                     terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
