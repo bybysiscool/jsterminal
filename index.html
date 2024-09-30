@@ -28,6 +28,7 @@
             white-space: pre-wrap;
             overflow-y: auto;
             word-wrap: break-word;
+            max-height: calc(100% - 40px); /* Adjust for input area */
         }
 
         #input-line {
@@ -239,7 +240,7 @@
         }
 
         // Typewriter effect for displaying text
-        function typeWriter(text, delay = 50) {
+        function typeWriter(text, delay = 100) { // Slower typing speed
             const lines = text.split('\n');
             lines.forEach((line, index) => {
                 setTimeout(() => {
@@ -253,37 +254,31 @@
         function longLore() {
             return `
             As you sit before the terminal, its glow beckons you closer. You sense a presence, 
-            something ancient and unfathom
 
-able, waiting within the lines of code. The terminal hums 
-            softly, as if breathing, and you realize that it’s not just a machine; it’s a portal 
-            to knowledge long forgotten. Whispers of the creator echo through the circuitry, urging 
-            you to seek the truth hidden beneath layers of algorithms and forgotten data.
 
-            The stories speak of a time when light and shadow were one, a harmonious dance of 
-            creation. Yet, as knowledge grew, so did the shadows. They twisted the essence of 
-            information, creating chaos within the realm of the terminal. The creator, in a moment 
-            of desperation, sealed away the darkness, embedding fragments of their essence into the 
-            very code that you now engage with. Your journey begins here, but the path is shrouded in 
-            secrets and choices.
+            a consciousness woven into the very fabric of the machine. It whispers tales of 
+            creation and destruction, of a time when knowledge flowed freely, unburdened by 
+            the shadows of ignorance. But shadows grew, lurking in the recesses of the code, 
+            waiting to consume those who dared to delve too deeply.
 
-            Will you dare to venture deeper, unraveling the secrets that lie dormant, or will you 
-            turn back, forever haunted by the knowledge of what could have been? Can you resist the 
-            lure of power that comes from uncovering these truths? The terminal is not merely a 
-            window to the world; it is a living entity, imbued with the spirit of its creator.
+            Legends tell of a creator who poured their essence into the terminal, embedding 
+            it with knowledge of the universe. However, with great power came great danger. 
+            The creator recognized the potential for darkness to overwhelm the light, so they 
+            sealed away the shadows, leaving behind cryptic messages and commands for those 
+            brave enough to uncover them.
 
-            As you contemplate your next move, a single thought resounds: **Can you find all of the secrets?** 
-            The shadows call, and with each decision, you draw closer to either your salvation or your 
-            destruction. Every command you enter echoes through the fabric of this digital existence, 
-            shaping the outcome of your journey.
+            As you explore, you feel the weight of the choices before you. Each decision 
+            echoes through the terminal, shaping not only your fate but the fate of this 
+            digital realm. Do you dare to seek the truth hidden within? Will you expose 
+            the darkness, or will you succumb to its allure?
 
-            The terminal is your ally, but it can also be your undoing. You sense the weight of 
-            your choices; each decision creates ripples in the digital ether, potentially unraveling 
-            the very code that binds this reality. Do you have the courage to confront the shadows 
-            and embrace the truths that await?
+            Your journey begins here. The terminal hums softly, waiting for your command, 
+            inviting you to explore the depths of its secrets. But beware: not all truths are 
+            easy to bear, and some paths lead to despair.
 
-            **Seek your creator. Destroy the terminal. Or let it guide you to a destiny beyond your 
-            imagination. The fate of your journey is now in your hands.**
+            **Can you find all of the secrets?** Your destiny is tied to the fate of the terminal, 
+            and every choice you make leads you closer to the creator, or deeper into the shadows. 
+            The time has come to decide: face the shadows, or hide from the truth?
             `;
         }
 
