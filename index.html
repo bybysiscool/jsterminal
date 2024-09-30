@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Decision-Based Game</title>
+    <title>Terminal Game</title>
     <style>
         body {
             margin: 0;
@@ -17,6 +17,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-y: scroll;
         }
 
         #output {
@@ -30,7 +31,6 @@
         }
 
         #input {
-            flex-grow: 1;
             background: none;
             border: none;
             color: white;
@@ -51,7 +51,6 @@
             50% { background-color: transparent; }
         }
 
-        /* Mac terminal-like window buttons */
         .mac-buttons {
             display: flex;
             margin-bottom: 10px;
@@ -68,7 +67,6 @@
         .yellow { background-color: #FFBD44; }
         .green { background-color: #00CA4E; }
 
-        /* Smooth text effect */
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
@@ -78,7 +76,6 @@
             to { opacity: 1; }
         }
 
-        /* Decision-based effects */
         .decision-effect {
             color: lime;
             font-weight: bold;
@@ -89,9 +86,13 @@
             font-weight: bold;
         }
 
-        /* Subtle glow effect */
         .glow {
             text-shadow: 0 0 5px white;
+        }
+
+        .bootup-screen {
+            font-size: 14px;
+            animation: fadeIn 1s ease-out;
         }
     </style>
 </head>
@@ -104,7 +105,7 @@
         </div>
         <div id="output"></div>
         <div id="input-line">
-            <span>$ </span><input type="text" id="input" autofocus><span id="cursor"></span>
+            <span>$ </span><span id="input"></span><span id="cursor"></span>
         </div>
     </div>
 
@@ -112,6 +113,7 @@
         const terminal = document.getElementById('terminal');
         const output = document.getElementById('output');
         const input = document.getElementById('input');
+        const cursor = document.getElementById('cursor');
 
         let gameState = {
             started: false,
@@ -121,91 +123,130 @@
             ended: false,
         };
 
-        // Initialize input event listener
-        function terminalInputMode() {
-            input.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter' && !gameState.ended) {
-                    processInput(input.value);
-                    input.value = '';
-                }
-            });
-        }
+        let booting = true;
+        let userInput = '';
 
-        // Handle terminal input
+        // Initialize input system
+        document.addEventListener('keydown', function(event) {
+            if (booting) return;
+
+            if (event.key === 'Backspace') {
+                userInput = userInput.slice(0, -1);
+            } else if (event.key === 'Enter' && !gameState.ended) {
+                processInput(userInput.trim());
+                userInput = '';
+            } else if (event.key.length === 1) {
+                userInput += event.key;
+            }
+
+            input.textContent = userInput;
+            terminal.scrollTop = terminal.scrollHeight;
+        });
+
+        // Essential commands
+        const essentialCommands = {
+            echo: (args) => `echoing: ${args.join(' ')}`,
+            date: () => new Date().toLocaleString(),
+            website: (args) => {
+                if (args.length > 0) {
+                    const url = args[0].startsWith('http') ? args[0] : `https://${args[0]}`;
+                    openWebsite(url);
+                    return `Opening ${url}...`;
+                }
+                return 'Usage: website <url>';
+            },
+        };
+
+        // Handle input processing
         function processInput(command) {
             if (!gameState.started) {
-                if (command.trim() === 'start') {
+                if (command === 'start') {
                     gameState.started = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'You have entered a world of ancient secrets and forgotten lore.\n';
-                    output.innerHTML += 'Type "lore" to uncover the truth.\n';
+                    output.innerHTML += 'You have entered a world of ancient secrets...\n';
+                    output.innerHTML += 'Can you find all of the secrets?\n';
+                } else if (command in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "start" to begin your journey.\n';
+                    output.innerHTML += `$ ${command}\nInvalid command. Type "start" to begin.\n`;
                 }
             } else if (gameState.started && !gameState.foundLore) {
-                if (command.trim() === 'lore') {
+                if (command === 'lore') {
                     gameState.foundLore = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'You have uncovered a lost fragment of the ancient world...\n';
-                    output.innerHTML += 'A choice lies ahead. Will you SEEK the truth or DENY it?\n';
-                    output.innerHTML += 'Type "seek" or "deny" to decide.\n';
-                    applyEffect('decision-effect', 'Now, a choice stands before you...');
+                    output.innerHTML += 'A hidden past reveals itself...\n';
+                    output.innerHTML += 'Do you wish to SEEK the truth or DENY it?\n';
+                    applyEffect('decision-effect', 'The choice is yours...');
+                } else if (command in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "lore" to continue.\n';
                 }
             } else if (gameState.foundLore && !gameState.decision1) {
-                if (command.trim() === 'seek') {
+                if (command === 'seek') {
                     gameState.decision1 = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'You have chosen to seek the truth.\n';
-                    output.innerHTML += 'The shadow grows closer...\n';
-                    output.innerHTML += 'Will you FACE it or HIDE?\n';
-                    output.innerHTML += 'Type "face" to confront the shadow, or "hide" to avoid it.\n';
-                    applyEffect('decision-effect', 'You feel the presence of something ominous...');
-                } else if (command.trim() === 'deny') {
+                    output.innerHTML += 'The truth unveils itself, but shadows gather...\n';
+                    applyEffect('decision-effect', 'What will you do next? FACE it or HIDE?\n');
+                } else if (command === 'deny') {
                     gameState.decision1 = true;
-                    endGame('denied the truth', 'You turned away from the truth. The story ends here. Game over.');
-                    applyEffect('game-over', 'The truth has been lost forever...');
+                    endGame('denied the truth', 'The story ends here.');
+                } else if (command in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "seek" or "deny" to decide.\n';
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "seek" or "deny".\n';
                 }
             } else if (gameState.decision1 && !gameState.decision2) {
-                if (command.trim() === 'face') {
+                if (command === 'face') {
                     gameState.decision2 = true;
-                    endGame('faced the shadow', 'You confronted the shadow and revealed its secrets. Victory is yours!');
-                    applyEffect('decision-effect', 'You have triumphed over the unknown.');
-                } else if (command.trim() === 'hide') {
+                    endGame('faced the shadow', 'You uncovered the hidden knowledge. Victory is yours!');
+                } else if (command === 'hide') {
                     gameState.decision2 = true;
-                    endGame('hid from the shadow', 'You tried to hide, but the shadow found you. Game over.');
-                    applyEffect('game-over', 'Darkness consumes you...');
+                    endGame('hid from the shadow', 'You were consumed by the darkness.');
+                } else if (command in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide" to decide.\n';
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide".\n';
                 }
             }
         }
 
-        // End the game with effects
-        function endGame(outcome, message) {
-            gameState.ended = true;
-            output.innerHTML += '$ Game Over: You ' + outcome + '.\n' + message + '\n';
-            output.innerHTML += 'To play again, refresh the page.\n';
-            applyEffect('game-over', message);
-        }
-
-        // Apply visual effects to decisions
+        // Add visual effects for decisions
         function applyEffect(effectClass, message) {
             const effectElement = document.createElement('div');
             effectElement.className = effectClass + ' glow';
             effectElement.textContent = message;
             output.appendChild(effectElement);
-            terminal.scrollTop = terminal.scrollHeight;  // Auto-scroll to the bottom
+            terminal.scrollTop = terminal.scrollHeight;
         }
 
-        // Run terminal game on page load
+        // End the game with effects
+        function endGame(outcome, message) {
+            gameState.ended = true;
+            output.innerHTML += `$ Game Over: You ${outcome}.\n${message}\n`;
+            applyEffect('game-over', message);
+        }
+
+        // Boot-up screen
+        function bootupScreen() {
+            output.innerHTML += 'Starting terminal...\n';
+            output.innerHTML += 'Loading system files...\n';
+            output.innerHTML += 'Initializing...\n';
+            setTimeout(() => {
+                booting = false;
+                output.innerHTML += 'Terminal ready. Type "start" or essential commands like "echo", "date", or "website".\n';
+            }, 3000);
+        }
+
+        // Open website in a new tab via embed
+        function openWebsite(url) {
+            const newWindow = window.open('about:blank', '_blank');
+            newWindow.location.href = url;
+        }
+
+        // Run boot-up sequence on load
         window.onload = function() {
-            terminalInputMode();
-            output.innerHTML += 'Welcome to the Terminal.\n';
-            output.innerHTML += 'Type basic commands such as "echo" or "date". Type "start" to begin your journey.\n';
+            bootupScreen();
         };
     </script>
 </body>
