@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mac-Style Web Terminal</title>
+    <title>Terminal Decision-Based Game</title>
     <style>
         body {
             margin: 0;
@@ -35,7 +35,7 @@
             color: white;
             font-size: 16px;
             outline: none;
-            caret-color: transparent; /* Hides default cursor */
+            caret-color: transparent;
         }
 
         #cursor {
@@ -50,12 +50,6 @@
             50% { background-color: transparent; }
         }
 
-        #bootup {
-            display: none;
-            white-space: pre-wrap;
-        }
-
-        /* Mac terminal-like window buttons */
         .mac-buttons {
             display: flex;
             margin-bottom: 10px;
@@ -72,7 +66,6 @@
         .yellow { background-color: #FFBD44; }
         .green { background-color: #00CA4E; }
 
-        /* Optional: Smooth text appearance effect */
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
@@ -80,6 +73,11 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        .game-over {
+            color: red;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -89,9 +87,6 @@
             <div class="mac-button red"></div>
             <div class="mac-button yellow"></div>
             <div class="mac-button green"></div>
-        </div>
-        <div id="bootup">
-            Booting macOS...\nChecking system...\nLoading kernel...\nSystem ready.\n
         </div>
         <div id="output"></div>
         <div id="input-line">
@@ -103,31 +98,19 @@
         const terminal = document.getElementById('terminal');
         const output = document.getElementById('output');
         const input = document.getElementById('input');
-        const bootup = document.getElementById('bootup');
 
-        // Bootup sequence
-        function bootSequence() {
-            bootup.style.display = 'block';
-            let lines = bootup.innerHTML.split('\\n');
-            bootup.innerHTML = ''; // Clear initially
+        let gameState = {
+            started: false,
+            foundLore: false,
+            decision1: false,
+            decision2: false,
+            ended: false,
+        };
 
-            let index = 0;
-            let interval = setInterval(() => {
-                if (index < lines.length) {
-                    output.innerHTML += lines[index] + '\n';
-                    index++;
-                } else {
-                    clearInterval(interval);
-                    bootup.style.display = 'none';
-                    terminalInputMode();
-                }
-            }, 1000);
-        }
-
-        // Enable user input after bootup
+        // Initialize input event listener
         function terminalInputMode() {
             input.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && !gameState.ended) {
                     processInput(input.value);
                     input.value = '';
                 }
@@ -136,47 +119,65 @@
 
         // Handle terminal input
         function processInput(command) {
-            const basicCommands = ['help', 'clear', 'echo', 'date', 'lore'];
-
-            if (command.trim() === 'help') {
-                output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += 'Basic commands: help, clear, echo, date\nSecret commands: secret1, secret2\n';
-            } else if (command.trim() === 'clear') {
-                output.innerHTML = '';  // Clear the terminal
-            } else if (command.startsWith('echo ')) {
-                const message = command.substring(5);
-                output.innerHTML += '$ ' + command + '\n' + message + '\n';
-            } else if (command.trim() === 'date') {
-                output.innerHTML += '$ ' + command + '\n' + new Date().toString() + '\n';
-            } else if (command.trim() === 'secret1') {
-                output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += '%cYou have unlocked an ancient secret... it whispers of forgotten times.', 'color: lime;';
-                loreEffect("The sky darkens as the lore of ancient times unveils itself...");
-            } else if (command.trim() === 'secret2') {
-                output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += '%cYou venture too far... this knowledge is not for mortal eyes.', 'color: red;';
-                loreEffect("The ground trembles beneath your feet as forbidden knowledge unfolds...");
-            } else if (command.trim() === 'lore') {
-                output.innerHTML += '$ ' + command + '\nThe secret lies beyond, hidden in the deepest codes of this system.\n';
-            } else if (!basicCommands.includes(command.trim().split(' ')[0])) {
-                output.innerHTML += '$ ' + command + '\nCommand not found. Type "help" for assistance.\n';
+            if (!gameState.started) {
+                if (command.trim() === 'start') {
+                    gameState.started = true;
+                    output.innerHTML += '$ ' + command + '\n';
+                    output.innerHTML += 'You have entered a world of ancient secrets and forgotten lore.\n';
+                    output.innerHTML += 'Type "lore" to uncover the truth.\n';
+                } else {
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "start" to begin your journey.\n';
+                }
+            } else if (gameState.started && !gameState.foundLore) {
+                if (command.trim() === 'lore') {
+                    gameState.foundLore = true;
+                    output.innerHTML += '$ ' + command + '\n';
+                    output.innerHTML += '%cYou have uncovered a lost fragment of the ancient world.', 'color: lime;';
+                    output.innerHTML += ' Now, a choice stands before you.\n';
+                    output.innerHTML += 'Do you wish to SEEK the truth or DENY it?\n';
+                    output.innerHTML += 'Type "seek" to uncover more, or "deny" to turn away.\n';
+                } else {
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "lore" to continue.\n';
+                }
+            } else if (gameState.foundLore && !gameState.decision1) {
+                if (command.trim() === 'seek') {
+                    gameState.decision1 = true;
+                    output.innerHTML += '$ ' + command + '\n';
+                    output.innerHTML += 'You have chosen to seek the truth.\n';
+                    output.innerHTML += 'But seeking has consequences... A shadow looms.\n';
+                    output.innerHTML += 'Will you FACE the shadow or HIDE from it?\n';
+                    output.innerHTML += 'Type "face" to confront the unknown, or "hide" to avoid it.\n';
+                } else if (command.trim() === 'deny') {
+                    gameState.decision1 = true;
+                    endGame('denied the truth', 'You turned away from the truth. The story ends here. Game over.');
+                } else {
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "seek" or "deny" to decide.\n';
+                }
+            } else if (gameState.decision1 && !gameState.decision2) {
+                if (command.trim() === 'face') {
+                    gameState.decision2 = true;
+                    endGame('faced the shadow', 'You bravely faced the shadow, and in doing so, found the hidden knowledge. You have triumphed!');
+                } else if (command.trim() === 'hide') {
+                    gameState.decision2 = true;
+                    endGame('hid from the shadow', 'You hid from the shadow, but it found you. You are consumed by the darkness. Game over.');
+                } else {
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide" to decide.\n';
+                }
             }
-
-            terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
         }
 
-        // Lore effect for secrets
-        function loreEffect(text) {
-            output.innerHTML += text + '\n';
-            terminal.style.backgroundColor = 'darkred';
-            setTimeout(() => {
-                terminal.style.backgroundColor = 'black';
-            }, 1000); // Add a red flash for effect
+        // End the game
+        function endGame(outcome, message) {
+            gameState.ended = true;
+            output.innerHTML += '%cGame Over: You ' + outcome + '.\n' + message + '\n', 'color: red;';
+            output.innerHTML += 'To play again, refresh the page.\n';
         }
 
-        // Run boot sequence on page load
+        // Run terminal game on page load
         window.onload = function() {
-            bootSequence();
+            terminalInputMode();
+            output.innerHTML += 'Welcome to the Terminal Adventure Game!\n';
+            output.innerHTML += 'Type "start" to begin your journey.\n';
         };
     </script>
 </body>
