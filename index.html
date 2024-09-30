@@ -3,272 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Terminal with HTML Runner and Proxy</title>
+    <title>A Normal Terminal..</title>
     <style>
         body {
-            display: flex;
-            flex-direction: row;
             margin: 0;
-            height: 100vh;
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #000;
-            color: #00ff00;
+            background-color: black;
+            color: white;
+            font-family: monospace;
         }
-        #leftSection {
-            display: flex;
-            flex-direction: column;
-            width: 50%;
-            border-right: 1px solid #00ff00;
-            height: 100vh;
-            background-color: #111;
-        }
+
         #terminal {
-            height: 50%;
-            padding: 10px;
-            overflow-y: auto;
-            background-color: #111;
+            padding: 20px;
             white-space: pre-wrap;
-            font-size: 16px;
-            position: relative;
-        }
-        #input {
-            width: calc(100% - 20px);
-            border: none;
-            padding: 10px;
-            background-color: #222;
-            color: #00ff00;
-            outline: none;
-            caret-color: #00ff00;
-            position: absolute;
-            bottom: 40px;
-            left: 0;
-        }
-        #htmlInputSection {
-            height: 50%;
-            background-color: #111;
-            padding: 10px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            border-top: 1px solid #00ff00;
         }
-        #htmlCode {
-            width: 100%;
-            height: 70%;
-            background-color: #222;
-            color: #00ff00;
+
+        #output {
+            flex-grow: 1;
+        }
+
+        #input-line {
+            display: flex;
+        }
+
+        #input {
+            flex-grow: 1;
+            background: none;
             border: none;
-            padding: 10px;
-            outline: none;
-            font-family: 'Courier New', Courier, monospace;
+            color: white;
             font-size: 16px;
-            caret-color: #00ff00;
+            outline: none;
         }
-        #runButton {
-            width: 100px;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #00ff00;
-            color: #111;
-            border: none;
-            cursor: pointer;
-        }
-        #playground {
-            width: 50%;
-            height: 100vh;
-            border: none;
-            background-color: white;
-            position: relative;
-        }
-        #frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .prompt {
-            display: inline;
-        }
-        .cursor {
+
+        #cursor {
             display: inline-block;
             width: 10px;
-            height: 20px;
-            background-color: #00ff00;
+            background-color: white;
             animation: blink 1s step-start infinite;
-            vertical-align: bottom;
         }
+
         @keyframes blink {
-            50% {
-                background-color: transparent;
-            }
+            50% { background-color: transparent; }
         }
-        #startupModal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            text-align: center;
-            padding: 20px;
-            opacity: 1;
-            transition: opacity 1s ease;
-        }
-        #startupModal.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #startupModal h1 {
-            margin-bottom: 20px;
-        }
-        #systemMessages {
+
+        #bootup {
+            display: none;
             white-space: pre-wrap;
-            font-size: 14px;
-            text-align: left;
         }
     </style>
 </head>
 <body>
-    <div id="startupModal">
-        <h1>JavaScript Terminal Boot Sequence...</h1>
-        <div id="systemMessages"></div>
-    </div>
-    
-    <div id="leftSection">
-        <div id="terminal">
-            <span id="prompt" class="prompt">js-terminal> </span>
-            <span id="cursor" class="cursor"></span>
-            <div id="output"></div>
-            <input type="text" id="input" placeholder="Type a command or JavaScript code..." />
+    <div id="terminal">
+        <div id="bootup">
+            Booting up the system...\nChecking memory...\nLoading modules...\nSystem ready.\n
         </div>
-    
-        <div id="htmlInputSection">
-            <textarea id="htmlCode" placeholder="Enter your HTML code here..."></textarea>
-            <button id="runButton">Run HTML</button>
+        <div id="output"></div>
+        <div id="input-line">
+            <span>$ </span><input type="text" id="input" autofocus><span id="cursor"></span>
         </div>
-    </div>
-
-    <div id="playground">
-        <iframe id="frame"></iframe>
     </div>
 
     <script>
         const terminal = document.getElementById('terminal');
-        const input = document.getElementById('input');
         const output = document.getElementById('output');
-        const prompt = document.getElementById('prompt');
-        const frame = document.getElementById('frame');
-        const htmlCode = document.getElementById('htmlCode');
-        const runButton = document.getElementById('runButton');
-        const startupModal = document.getElementById('startupModal');
-        const systemMessages = document.getElementById('systemMessages');
-        
-        // Bootup Sequence
-        const bootupMessages = [
-            "Checking system integrity... [OK]",
-            "Loading terminal environment... [OK]",
-            "Connecting to servers... [OK]",
-            "Initializing user session... [OK]",
-            "System boot complete. Ready to execute."
-        ];
-        
-        let currentMessageIndex = 0;
-        function displayNextBootupMessage() {
-            if (currentMessageIndex < bootupMessages.length) {
-                systemMessages.innerHTML += bootupMessages[currentMessageIndex] + "\n";
-                currentMessageIndex++;
-                setTimeout(displayNextBootupMessage, 1000);
-            } else {
-                setTimeout(() => {
-                    startupModal.classList.add('fade-out');
-                    setTimeout(() => {
-                        startupModal.style.display = 'none';
-                    }, 1000);
-                }, 1000);
-            }
-        }
-        
-        setTimeout(displayNextBootupMessage, 1000);
-        
-        // Terminal Logic
-        let jsMode = true; // default is to run JavaScript
-        input.focus();
-        input.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                const command = input.value.trim();
-                output.innerHTML += `\njs-terminal> ${command}`;
-                
-                // Handle commands
-                if (command.startsWith('website ')) {
-                    const url = command.split(' ')[1];
-                    if (url) {
-                        frame.src = url;
-                        frame.style.display = 'block';
-                    }
-                } else if (command.startsWith('fullscreen terminal')) {
-                    openFullscreen(document.getElementById('leftSection'));
-                } else if (command.startsWith('fullscreen playground')) {
-                    openFullscreen(document.getElementById('playground'));
-                } else if (command.startsWith('proxy ')) {
-                    const parts = command.split(' ');
-                    if (parts.length === 3) {
-                        const proxyUrl = parts[1];
-                        const siteUrl = parts[2];
-                        const proxiedUrl = `${proxyUrl}?target=${encodeURIComponent(siteUrl)}`;
-                        frame.src = proxiedUrl;
-                        output.innerHTML += "\nLoading site through proxy...";
-                    } else {
-                        output.innerHTML += "\nError: Invalid proxy command format.";
-                    }
-                } else if (command === 'help') {
-                    output.innerHTML += `\nAvailable commands:\n- website <url>: Load a website into the playground.\n- fullscreen terminal: Enter fullscreen for the terminal.\n- fullscreen playground: Enter fullscreen for the playground.`;
+        const input = document.getElementById('input');
+        const bootup = document.getElementById('bootup');
+
+        // Bootup sequence
+        function bootSequence() {
+            bootup.style.display = 'block';
+            let lines = bootup.innerHTML.split('\\n');
+            bootup.innerHTML = ''; // Clear initially
+
+            let index = 0;
+            let interval = setInterval(() => {
+                if (index < lines.length) {
+                    output.innerHTML += lines[index] + '\n';
+                    index++;
                 } else {
-                    // Execute JavaScript code
-                    try {
-                        if (jsMode) {
-                            const result = eval(command);
-                            output.innerHTML += `\n${result}`;
-                        }
-                    } catch (err) {
-                        output.innerHTML += `\nError: ${err.message}`;
-                    }
+                    clearInterval(interval);
+                    bootup.style.display = 'none';
+                    terminalInputMode();
                 }
-
-                input.value = '';
-                terminal.scrollTop = terminal.scrollHeight;
-            }
-        });
-
-        // Run HTML Code in Playground
-        runButton.addEventListener('click', () => {
-            const htmlContent = htmlCode.value;
-            frame.srcdoc = htmlContent;
-            frame.style.display = 'block';
-        });
-
-        // Function to handle fullscreen
-        function openFullscreen(element) {
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) { // Firefox
-                element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, and Opera
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { // IE/Edge
-                element.msRequestFullscreen();
-            }
+            }, 1000); // Adjust time for smoother effect
         }
 
-        // Save preferences in localStorage
-        function savePreferences(theme, fontSize, color) {
-            localStorage.setItem('terminalTheme', theme);
-            localStorage.setItem('terminalFontSize', fontSize);
-            localStorage.setItem('terminalColor', color);
+        // Enable user input after bootup
+        function terminalInputMode() {
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    processInput(input.value);
+                    input.value = '';
+                }
+            });
         }
+
+        // Handle terminal input
+        function processInput(command) {
+            if (command.trim() === 'help') {
+                output.innerHTML += '$ ' + command + '\n';
+                output.innerHTML += 'Available commands: help, secret1, secret2\n';
+            } else if (command.trim() === 'secret1') {
+                output.innerHTML += '$ ' + command + '\n';
+                output.innerHTML += 'You found the first secret!\n';
+            } else if (command.trim() === 'secret2') {
+                output.innerHTML += '$ ' + command + '\n';
+                output.innerHTML += 'This is the second secret command!\n';
+            } else {
+                output.innerHTML += '$ ' + command + '\n';
+                output.innerHTML += 'Command not found. Type "help" for assistance.\n';
+            }
+
+            terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+        }
+
+        // Run boot sequence on page load
+        window.onload = function() {
+            bootSequence();
+        };
     </script>
 </body>
 </html>
