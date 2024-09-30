@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Normal Terminal..</title>
+    <title>Mac-Style Web Terminal</title>
     <style>
         body {
             margin: 0;
             background-color: black;
             color: white;
-            font-family: monospace;
+            font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
         }
 
         #terminal {
             padding: 20px;
-            white-space: pre-wrap;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -22,6 +21,7 @@
 
         #output {
             flex-grow: 1;
+            white-space: pre-wrap;
         }
 
         #input-line {
@@ -35,11 +35,13 @@
             color: white;
             font-size: 16px;
             outline: none;
+            caret-color: transparent; /* Hides default cursor */
         }
 
         #cursor {
             display: inline-block;
             width: 10px;
+            height: 18px;
             background-color: white;
             animation: blink 1s step-start infinite;
         }
@@ -52,12 +54,44 @@
             display: none;
             white-space: pre-wrap;
         }
+
+        /* Mac terminal-like window buttons */
+        .mac-buttons {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .mac-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .red { background-color: #FF605C; }
+        .yellow { background-color: #FFBD44; }
+        .green { background-color: #00CA4E; }
+
+        /* Optional: Smooth text appearance effect */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div id="terminal">
+        <div class="mac-buttons">
+            <div class="mac-button red"></div>
+            <div class="mac-button yellow"></div>
+            <div class="mac-button green"></div>
+        </div>
         <div id="bootup">
-            Booting up the system...\nChecking memory...\nLoading modules...\nSystem ready.\n
+            Booting macOS...\nChecking system...\nLoading kernel...\nSystem ready.\n
         </div>
         <div id="output"></div>
         <div id="input-line">
@@ -87,7 +121,7 @@
                     bootup.style.display = 'none';
                     terminalInputMode();
                 }
-            }, 1000); // Adjust time for smoother effect
+            }, 1000);
         }
 
         // Enable user input after bootup
@@ -102,21 +136,42 @@
 
         // Handle terminal input
         function processInput(command) {
+            const basicCommands = ['help', 'clear', 'echo', 'date', 'lore'];
+
             if (command.trim() === 'help') {
                 output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += 'Available commands: help, secret1, secret2\n';
+                output.innerHTML += 'Basic commands: help, clear, echo, date\nSecret commands: secret1, secret2\n';
+            } else if (command.trim() === 'clear') {
+                output.innerHTML = '';  // Clear the terminal
+            } else if (command.startsWith('echo ')) {
+                const message = command.substring(5);
+                output.innerHTML += '$ ' + command + '\n' + message + '\n';
+            } else if (command.trim() === 'date') {
+                output.innerHTML += '$ ' + command + '\n' + new Date().toString() + '\n';
             } else if (command.trim() === 'secret1') {
                 output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += 'You found the first secret!\n';
+                output.innerHTML += '%cYou have unlocked an ancient secret... it whispers of forgotten times.', 'color: lime;';
+                loreEffect("The sky darkens as the lore of ancient times unveils itself...");
             } else if (command.trim() === 'secret2') {
                 output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += 'This is the second secret command!\n';
-            } else {
-                output.innerHTML += '$ ' + command + '\n';
-                output.innerHTML += 'Command not found. Type "help" for assistance.\n';
+                output.innerHTML += '%cYou venture too far... this knowledge is not for mortal eyes.', 'color: red;';
+                loreEffect("The ground trembles beneath your feet as forbidden knowledge unfolds...");
+            } else if (command.trim() === 'lore') {
+                output.innerHTML += '$ ' + command + '\nThe secret lies beyond, hidden in the deepest codes of this system.\n';
+            } else if (!basicCommands.includes(command.trim().split(' ')[0])) {
+                output.innerHTML += '$ ' + command + '\nCommand not found. Type "help" for assistance.\n';
             }
 
             terminal.scrollTop = terminal.scrollHeight; // Auto-scroll to bottom
+        }
+
+        // Lore effect for secrets
+        function loreEffect(text) {
+            output.innerHTML += text + '\n';
+            terminal.style.backgroundColor = 'darkred';
+            setTimeout(() => {
+                terminal.style.backgroundColor = 'black';
+            }, 1000); // Add a red flash for effect
         }
 
         // Run boot sequence on page load
