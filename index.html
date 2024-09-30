@@ -126,12 +126,15 @@
 
     <iframe id="web-view"></iframe>
 
+    <audio id="typeSound" src="type-sound.mp3" preload="auto"></audio>
+
     <script>
         const terminal = document.getElementById('terminal');
         const output = document.getElementById('output');
         const input = document.getElementById('input');
         const cursor = document.getElementById('cursor');
         const webView = document.getElementById('web-view');
+        const typeSound = document.getElementById('typeSound');
 
         let gameState = {
             started: false,
@@ -139,6 +142,19 @@
             decision1: false,
             decision2: false,
             decision3: false,
+            decision4: false,
+            decision5: false,
+            decision6: false,
+            decision7: false,
+            decision8: false,
+            decision9: false,
+            decision10: false,
+            decision11: false,
+            decision12: false,
+            decision13: false,
+            decision14: false,
+            decision15: false,
+            decision16: false,
             ended: false,
         };
 
@@ -234,25 +250,27 @@
                 } else if (cmd in essentialCommands) {
                     typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    typeWriter('Invalid command. Type "challenge" or "embrace".\n');
+                    typeWriter('Invalid command. Type "challenge" or "
+
+embrace".\n');
                 }
             }
+            // Add more decisions as needed
         }
 
-        // Typewriter effect for displaying text character by character
-        function typeWriter(text, delay = 150) { // Slower typing speed (150ms per character)
+        // Typewriter effect
+        function typeWriter(text) {
             let index = 0;
-
             function typeNextChar() {
                 if (index < text.length) {
                     output.innerHTML += text.charAt(index);
+                    if (text.charAt(index) !== '\n') {
+                        typeSound.play(); // Play typing sound
+                    }
                     index++;
-                    terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
-                    setTimeout(typeNextChar, delay);
+                    setTimeout(typeNextChar, text.charAt(index - 1) === '\n' ? 500 : 100); // Adjust speed for newline
                 } else {
-                    output.inner
-
-HTML += '\n'; // New line after finishing
+                    output.innerHTML += '\n'; // New line after finishing
                     terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
                 }
             }
