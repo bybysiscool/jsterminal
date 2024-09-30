@@ -13,28 +13,21 @@
             font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         #terminal {
-            width: 90%;
-            height: 90%;
+            padding: 20px;
+            height: 100%;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            padding: 20px;
-            border: 1px solid white;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
         #output {
             flex-grow: 1;
             white-space: pre-wrap;
             overflow-y: auto;
-            font-size: 16px;
-            line-height: 1.4;
+            word-wrap: break-word;
         }
 
         #input-line {
@@ -48,7 +41,6 @@
             color: white;
             font-size: 16px;
             outline: none;
-            caret-color: white;
         }
 
         #cursor {
@@ -190,53 +182,46 @@
             if (!gameState.started) {
                 if (cmd === 'start') {
                     gameState.started = true;
-                    output.innerHTML += '$ ' + command + '\n';
-                    typeWriterEffect('The terminal hums with hidden power. A mystery lies within...\n');
+                    typeWriter('The terminal hums with hidden power. A mystery lies within...\nCan you find all of the secrets?\n');
                 } else if (cmd in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
+                    typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    output.innerHTML += `$ ${command}\nInvalid command. Type "start" to begin.\n`;
+                    typeWriter('Invalid command. Type "start" to begin.\n');
                 }
             } else if (gameState.started && !gameState.foundLore) {
                 if (cmd === 'lore') {
                     gameState.foundLore = true;
-                    output.innerHTML += '$ ' + command + '\n';
-                    longLore();
+                    typeWriter(longLore());
                 } else if (cmd in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
+                    typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "lore" to continue.\n';
+                    typeWriter('Invalid command. Type "lore" to continue.\n');
                 }
             } else if (gameState.foundLore && !gameState.decision1) {
                 if (cmd === 'seek') {
                     gameState.decision1 = true;
-                    output.innerHTML += '$ ' + command + '\n';
-                    typeWriterEffect('You take a deep breath and plunge into the shadows of truth...\n');
-                    typeWriterEffect('A voice echoes, "What do you fear the most? The truth or the shadows?"\n');
-                    typeWriterEffect('Do you FACE the shadows or HIDE from them?\n');
+                    typeWriter('You take a deep breath and plunge into the shadows of truth...\nA voice echoes, "What do you fear the most? The truth or the shadows?"\nDo you FACE the shadows or HIDE from them?\n');
                     applyEffect('decision-effect', 'Choose "face" or "hide".');
                 } else if (cmd === 'deny') {
                     gameState.decision1 = true;
                     endGame('denied the truth', 'You turned away, and the story ends. The fractures grow deeper, lost to time.');
                 } else if (cmd in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
+                    typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "seek" or "deny".\n';
+                    typeWriter('Invalid command. Type "seek" or "deny".\n');
                 }
             } else if (gameState.decision1 && !gameState.decision2) {
                 if (cmd === 'face') {
                     gameState.decision2 = true;
-                    output.innerHTML += '$ ' + command + '\n';
-                    typeWriterEffect('You embrace the shadows, uncovering the ancient secrets they guard...\n');
-                    typeWriterEffect('In the heart of darkness lies the essence of creation. Do you CHALLENGE the essence or EMBRACE it?\n');
+                    typeWriter('You embrace the shadows, uncovering the ancient secrets they guard...\nIn the heart of darkness lies the essence of creation. Do you CHALLENGE the essence or EMBRACE it?\n');
                     applyEffect('decision-effect', 'Choose "challenge" or "embrace".');
                 } else if (cmd === 'hide') {
                     gameState.decision2 = true;
                     endGame('hid from the shadows', 'The shadows consumed you. The light of truth fades away, leaving nothing but silence.');
                 } else if (cmd in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
+                    typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide".\n';
+                    typeWriter('Invalid command. Type "face" or "hide".\n');
                 }
             } else if (gameState.decision2 && !gameState.decision3) {
                 if (cmd === 'challenge') {
@@ -244,42 +229,33 @@
                     endGame('challenged the essence', 'A great clash erupts, reshaping the world. You emerge a beacon of light, restoring balance.');
                 } else if (cmd === 'embrace') {
                     gameState.decision3 = true;
-                    endGame('embraced the
-
- essence', 'You dissolve into the essence, becoming one with creation. The terminal fades away, leaving a legacy of enlightenment.');
+                    endGame('embraced the essence', 'The shadows meld with your spirit, granting you unimaginable power, but at a cost.');
                 } else if (cmd in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
+                    typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "challenge" or "embrace".\n';
+                    typeWriter('Invalid command. Type "challenge" or "embrace".\n');
                 }
-            } else {
-                output.innerHTML += '$ ' + command + '\nGame already ended. Refresh to start again.\n';
             }
-
-            cursor.style.display = 'inline'; // Show the cursor
-            terminal.scrollTop = terminal.scrollHeight;
         }
 
-        // Typewriter effect
-        function typeWriterEffect(text) {
-            let index = 0;
-            const typeInterval = setInterval(() => {
-                if (index < text.length) {
-                    output.innerHTML += text.charAt(index);
-                    index++;
-                } else {
-                    clearInterval(typeInterval);
-                    output.innerHTML += '\n';
-                    terminal.scrollTop = terminal.scrollHeight;
-                }
-            }, 50); // Speed of the typewriter effect
+        // Typewriter effect for displaying text
+        function typeWriter(text, delay = 50) {
+            const lines = text.split('\n');
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    output.innerHTML += line + '\n';
+                    terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
+                }, delay * index);
+            });
         }
 
         // Long lore explanation
         function longLore() {
-            typeWriterEffect(`
+            return `
             As you sit before the terminal, its glow beckons you closer. You sense a presence, 
-            something ancient and unfathomable, waiting within the lines of code. The terminal hums 
+            something ancient and unfathom
+
+able, waiting within the lines of code. The terminal hums 
             softly, as if breathing, and you realize that it’s not just a machine; it’s a portal 
             to knowledge long forgotten. Whispers of the creator echo through the circuitry, urging 
             you to seek the truth hidden beneath layers of algorithms and forgotten data.
@@ -308,7 +284,7 @@
 
             **Seek your creator. Destroy the terminal. Or let it guide you to a destiny beyond your 
             imagination. The fate of your journey is now in your hands.**
-            `);
+            `;
         }
 
         // Apply effects
