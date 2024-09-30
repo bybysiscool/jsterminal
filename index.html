@@ -85,6 +85,17 @@
             font-size: 14px;
             animation: fadeIn 1s ease-out;
         }
+
+        /* For the iframe */
+        #web-view {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
@@ -100,11 +111,14 @@
         </div>
     </div>
 
+    <iframe id="web-view"></iframe>
+
     <script>
         const terminal = document.getElementById('terminal');
         const output = document.getElementById('output');
         const input = document.getElementById('input');
         const cursor = document.getElementById('cursor');
+        const webView = document.getElementById('web-view');
 
         let gameState = {
             started: false,
@@ -143,7 +157,7 @@
                 if (args.length > 0) {
                     const url = args[0].startsWith('http') ? args[0] : `https://${args[0]}`;
                     openWebsite(url);
-                    return `Opening ${url}...`;
+                    return `Opening ${url} in a new window...`;
                 }
                 return 'Usage: website <url>';
             },
@@ -169,7 +183,8 @@
                     gameState.foundLore = true;
                     output.innerHTML += '$ ' + command + '\n';
                     output.innerHTML += 'A hidden history unravels...\n';
-                    output.innerHTML += 'The world was once whole, now fractured. Will you SEEK the truth or DENY it?\n';
+                    output.innerHTML += 'In a world divided, where light battles shadow, whispers of a great fracture circulate. Many seek the truth, yet few possess the courage to face it. Will you become a seeker of knowledge, or will you turn a blind eye?\n';
+                    output.innerHTML += 'The sages speak of a key hidden in plain sight—will you dare to find it?\n';
                     applyEffect('decision-effect', 'The choice is yours: "seek" or "deny".');
                 } else if (cmd in essentialCommands) {
                     output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
@@ -180,12 +195,13 @@
                 if (cmd === 'seek') {
                     gameState.decision1 = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'The deeper truth emerges, and with it, shadows form...\n';
+                    output.innerHTML += 'You take a deep breath and plunge into the shadows of truth...\n';
+                    output.innerHTML += 'A voice echoes, "What do you fear the most? The truth or the shadows?"\n';
                     output.innerHTML += 'Do you FACE the shadows or HIDE from them?\n';
                     applyEffect('decision-effect', 'Choose "face" or "hide".');
                 } else if (cmd === 'deny') {
                     gameState.decision1 = true;
-                    endGame('denied the truth', 'You turned away, and the story ends.');
+                    endGame('denied the truth', 'You turned away, and the story ends. The fractures grow deeper, lost to time.');
                 } else if (cmd in essentialCommands) {
                     output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
@@ -195,49 +211,46 @@
                 if (cmd === 'face') {
                     gameState.decision2 = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'You confront the shadows and find the source of the fracture.\n';
-                    output.innerHTML += 'Do you REPAIR the world or let it CRUMBLE?\n';
-                    applyEffect('decision-effect', 'Choose "repair" or "crumble".');
+                    output.innerHTML += 'You embrace the shadows, uncovering the ancient secrets they guard...\n';
+                    output.innerHTML += 'In the heart of darkness lies the essence of creation. Do you CHALLENGE the essence or EMBRACE it?\n';
+                    applyEffect('decision-effect', 'Choose "challenge" or "embrace".');
                 } else if (cmd === 'hide') {
                     gameState.decision2 = true;
-                    endGame('hid from the shadows', 'The shadows consumed you. The end is near.');
+                    endGame('hid from the shadows', 'The shadows consumed you. The light of truth fades away, leaving nothing but silence.');
                 } else if (cmd in essentialCommands) {
                     output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide".\n';
                 }
             } else if (gameState.decision2 && !gameState.decision3) {
-                if (cmd === 'repair') {
+                if (cmd === 'challenge') {
                     gameState.decision3 = true;
-                    endGame('repaired the fracture', 'The world heals, and you are victorious.');
-                } else if (cmd === 'crumble') {
+                    endGame('challenged the essence', 'A great clash erupts, reshaping the world. You emerge a beacon of light, restoring balance.');
+                } else if (cmd === 'embrace') {
                     gameState.decision3 = true;
-                    endGame('let the world crumble', 'The world shatters and falls into darkness.');
+                    endGame('embraced the essence', 'The shadows meld with your spirit, granting you unimaginable power, but at a cost.');
                 } else if (cmd in essentialCommands) {
                     output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
-                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "repair" or "crumble".\n';
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "challenge" or "embrace".\n';
                 }
             }
         }
 
-        // Add visual effects
-        function applyEffect(effectClass, message) {
-            const effectElement = document.createElement('div');
-            effectElement.className = effectClass + ' glow';
-            effectElement.textContent = message;
-            output.appendChild(effectElement);
-            terminal.scrollTop = terminal.scrollHeight;
+        // Apply effects
+        function applyEffect(className, message) {
+            output.innerHTML += `<span class="${className}">${message}</span>\n`;
         }
 
-        // End the game with effects
-        function endGame(outcome, message) {
+        // End the game
+        function endGame(action, message) {
             gameState.ended = true;
-            output.innerHTML += `$ Game Over: You ${outcome}.\n${message}\n`;
-            applyEffect('game-over', message);
+            output.innerHTML += `Game Over: You ${action}.\n`;
+            output.innerHTML += message + '\n';
+            cursor.style.display = 'none'; // Hide the cursor
         }
 
-        // Boot-up screen
+        // Boot-up sequence
         function bootupScreen() {
             output.innerHTML += 'Starting terminal...\n';
             output.innerHTML += 'Loading system files...\n';
@@ -248,10 +261,10 @@
             }, 3000);
         }
 
-        // Open website in a new tab
+        // Open website in about:blank embed
         function openWebsite(url) {
-            const newWindow = window.open(url, '_blank');
-            newWindow.focus();
+            webView.src = url;
+            webView.style.display = 'block';
         }
 
         // Run boot-up sequence
