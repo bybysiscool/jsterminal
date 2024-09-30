@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal Game</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         body {
             margin: 0;
@@ -17,7 +18,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-y: scroll;
+            overflow-y: auto;
         }
 
         #output {
@@ -36,7 +37,6 @@
             color: white;
             font-size: 16px;
             outline: none;
-            caret-color: transparent;
         }
 
         #cursor {
@@ -66,15 +66,6 @@
         .red { background-color: #FF605C; }
         .yellow { background-color: #FFBD44; }
         .green { background-color: #00CA4E; }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
         .decision-effect {
             color: lime;
@@ -120,13 +111,14 @@
             foundLore: false,
             decision1: false,
             decision2: false,
+            decision3: false,
             ended: false,
         };
 
         let booting = true;
         let userInput = '';
 
-        // Initialize input system
+        // Input system
         document.addEventListener('keydown', function(event) {
             if (booting) return;
 
@@ -157,61 +149,79 @@
             },
         };
 
-        // Handle input processing
+        // Process input
         function processInput(command) {
+            const [cmd, ...args] = command.split(' ');
+
             if (!gameState.started) {
-                if (command === 'start') {
+                if (cmd === 'start') {
                     gameState.started = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'You have entered a world of ancient secrets...\n';
+                    output.innerHTML += 'The terminal hums with hidden power. A mystery lies within...\n';
                     output.innerHTML += 'Can you find all of the secrets?\n';
-                } else if (command in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
+                } else if (cmd in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
                     output.innerHTML += `$ ${command}\nInvalid command. Type "start" to begin.\n`;
                 }
             } else if (gameState.started && !gameState.foundLore) {
-                if (command === 'lore') {
+                if (cmd === 'lore') {
                     gameState.foundLore = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'A hidden past reveals itself...\n';
-                    output.innerHTML += 'Do you wish to SEEK the truth or DENY it?\n';
-                    applyEffect('decision-effect', 'The choice is yours...');
-                } else if (command in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
+                    output.innerHTML += 'A hidden history unravels...\n';
+                    output.innerHTML += 'The world was once whole, now fractured. Will you SEEK the truth or DENY it?\n';
+                    applyEffect('decision-effect', 'The choice is yours: "seek" or "deny".');
+                } else if (cmd in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "lore" to continue.\n';
                 }
             } else if (gameState.foundLore && !gameState.decision1) {
-                if (command === 'seek') {
+                if (cmd === 'seek') {
                     gameState.decision1 = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += 'The truth unveils itself, but shadows gather...\n';
-                    applyEffect('decision-effect', 'What will you do next? FACE it or HIDE?\n');
-                } else if (command === 'deny') {
+                    output.innerHTML += 'The deeper truth emerges, and with it, shadows form...\n';
+                    output.innerHTML += 'Do you FACE the shadows or HIDE from them?\n';
+                    applyEffect('decision-effect', 'Choose "face" or "hide".');
+                } else if (cmd === 'deny') {
                     gameState.decision1 = true;
-                    endGame('denied the truth', 'The story ends here.');
-                } else if (command in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
+                    endGame('denied the truth', 'You turned away, and the story ends.');
+                } else if (cmd in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "seek" or "deny".\n';
                 }
             } else if (gameState.decision1 && !gameState.decision2) {
-                if (command === 'face') {
+                if (cmd === 'face') {
                     gameState.decision2 = true;
-                    endGame('faced the shadow', 'You uncovered the hidden knowledge. Victory is yours!');
-                } else if (command === 'hide') {
+                    output.innerHTML += '$ ' + command + '\n';
+                    output.innerHTML += 'You confront the shadows and find the source of the fracture.\n';
+                    output.innerHTML += 'Do you REPAIR the world or let it CRUMBLE?\n';
+                    applyEffect('decision-effect', 'Choose "repair" or "crumble".');
+                } else if (cmd === 'hide') {
                     gameState.decision2 = true;
-                    endGame('hid from the shadow', 'You were consumed by the darkness.');
-                } else if (command in essentialCommands) {
-                    output.innerHTML += `$ ${command}\n${essentialCommands[command]([])}\n`;
+                    endGame('hid from the shadows', 'The shadows consumed you. The end is near.');
+                } else if (cmd in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide".\n';
+                }
+            } else if (gameState.decision2 && !gameState.decision3) {
+                if (cmd === 'repair') {
+                    gameState.decision3 = true;
+                    endGame('repaired the fracture', 'The world heals, and you are victorious.');
+                } else if (cmd === 'crumble') {
+                    gameState.decision3 = true;
+                    endGame('let the world crumble', 'The world shatters and falls into darkness.');
+                } else if (cmd in essentialCommands) {
+                    output.innerHTML += `$ ${command}\n${essentialCommands[cmd](args)}\n`;
+                } else {
+                    output.innerHTML += '$ ' + command + '\nInvalid command. Type "repair" or "crumble".\n';
                 }
             }
         }
 
-        // Add visual effects for decisions
+        // Add visual effects
         function applyEffect(effectClass, message) {
             const effectElement = document.createElement('div');
             effectElement.className = effectClass + ' glow';
@@ -238,13 +248,13 @@
             }, 3000);
         }
 
-        // Open website in a new tab via embed
+        // Open website in a new tab
         function openWebsite(url) {
-            const newWindow = window.open('about:blank', '_blank');
-            newWindow.location.href = url;
+            const newWindow = window.open(url, '_blank');
+            newWindow.focus();
         }
 
-        // Run boot-up sequence on load
+        // Run boot-up sequence
         window.onload = function() {
             bootupScreen();
         };
