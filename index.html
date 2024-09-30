@@ -26,6 +26,7 @@
 
         #input-line {
             display: flex;
+            margin-top: 10px;
         }
 
         #input {
@@ -50,6 +51,7 @@
             50% { background-color: transparent; }
         }
 
+        /* Mac terminal-like window buttons */
         .mac-buttons {
             display: flex;
             margin-bottom: 10px;
@@ -66,6 +68,7 @@
         .yellow { background-color: #FFBD44; }
         .green { background-color: #00CA4E; }
 
+        /* Smooth text effect */
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
@@ -75,9 +78,20 @@
             to { opacity: 1; }
         }
 
+        /* Decision-based effects */
+        .decision-effect {
+            color: lime;
+            font-weight: bold;
+        }
+
         .game-over {
             color: red;
             font-weight: bold;
+        }
+
+        /* Subtle glow effect */
+        .glow {
+            text-shadow: 0 0 5px white;
         }
     </style>
 </head>
@@ -132,10 +146,10 @@
                 if (command.trim() === 'lore') {
                     gameState.foundLore = true;
                     output.innerHTML += '$ ' + command + '\n';
-                    output.innerHTML += '%cYou have uncovered a lost fragment of the ancient world.', 'color: lime;';
-                    output.innerHTML += ' Now, a choice stands before you.\n';
-                    output.innerHTML += 'Do you wish to SEEK the truth or DENY it?\n';
-                    output.innerHTML += 'Type "seek" to uncover more, or "deny" to turn away.\n';
+                    output.innerHTML += 'You have uncovered a lost fragment of the ancient world...\n';
+                    output.innerHTML += 'A choice lies ahead. Will you SEEK the truth or DENY it?\n';
+                    output.innerHTML += 'Type "seek" or "deny" to decide.\n';
+                    applyEffect('decision-effect', 'Now, a choice stands before you...');
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "lore" to continue.\n';
                 }
@@ -144,40 +158,54 @@
                     gameState.decision1 = true;
                     output.innerHTML += '$ ' + command + '\n';
                     output.innerHTML += 'You have chosen to seek the truth.\n';
-                    output.innerHTML += 'But seeking has consequences... A shadow looms.\n';
-                    output.innerHTML += 'Will you FACE the shadow or HIDE from it?\n';
-                    output.innerHTML += 'Type "face" to confront the unknown, or "hide" to avoid it.\n';
+                    output.innerHTML += 'The shadow grows closer...\n';
+                    output.innerHTML += 'Will you FACE it or HIDE?\n';
+                    output.innerHTML += 'Type "face" to confront the shadow, or "hide" to avoid it.\n';
+                    applyEffect('decision-effect', 'You feel the presence of something ominous...');
                 } else if (command.trim() === 'deny') {
                     gameState.decision1 = true;
                     endGame('denied the truth', 'You turned away from the truth. The story ends here. Game over.');
+                    applyEffect('game-over', 'The truth has been lost forever...');
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "seek" or "deny" to decide.\n';
                 }
             } else if (gameState.decision1 && !gameState.decision2) {
                 if (command.trim() === 'face') {
                     gameState.decision2 = true;
-                    endGame('faced the shadow', 'You bravely faced the shadow, and in doing so, found the hidden knowledge. You have triumphed!');
+                    endGame('faced the shadow', 'You confronted the shadow and revealed its secrets. Victory is yours!');
+                    applyEffect('decision-effect', 'You have triumphed over the unknown.');
                 } else if (command.trim() === 'hide') {
                     gameState.decision2 = true;
-                    endGame('hid from the shadow', 'You hid from the shadow, but it found you. You are consumed by the darkness. Game over.');
+                    endGame('hid from the shadow', 'You tried to hide, but the shadow found you. Game over.');
+                    applyEffect('game-over', 'Darkness consumes you...');
                 } else {
                     output.innerHTML += '$ ' + command + '\nInvalid command. Type "face" or "hide" to decide.\n';
                 }
             }
         }
 
-        // End the game
+        // End the game with effects
         function endGame(outcome, message) {
             gameState.ended = true;
-            output.innerHTML += '%cGame Over: You ' + outcome + '.\n' + message + '\n', 'color: red;';
+            output.innerHTML += '$ Game Over: You ' + outcome + '.\n' + message + '\n';
             output.innerHTML += 'To play again, refresh the page.\n';
+            applyEffect('game-over', message);
+        }
+
+        // Apply visual effects to decisions
+        function applyEffect(effectClass, message) {
+            const effectElement = document.createElement('div');
+            effectElement.className = effectClass + ' glow';
+            effectElement.textContent = message;
+            output.appendChild(effectElement);
+            terminal.scrollTop = terminal.scrollHeight;  // Auto-scroll to the bottom
         }
 
         // Run terminal game on page load
         window.onload = function() {
             terminalInputMode();
-            output.innerHTML += 'Welcome to the Terminal Adventure Game!\n';
-            output.innerHTML += 'Type "start" to begin your journey.\n';
+            output.innerHTML += 'Welcome to the Terminal.\n';
+            output.innerHTML += 'Type basic commands such as "echo" or "date". Type "start" to begin your journey.\n';
         };
     </script>
 </body>
