@@ -42,6 +42,8 @@
             color: white;
             font-size: 16px;
             outline: none;
+            display: inline;
+            padding-right: 2px;
         }
 
         #cursor {
@@ -49,6 +51,7 @@
             width: 10px;
             height: 18px;
             background-color: white;
+            margin-left: 2px;
             animation: blink 1s step-start infinite;
         }
 
@@ -237,19 +240,7 @@
                     endGame('embraced the essence', 'The shadows meld with your spirit, granting you unimaginable power, but at a cost.');
                 } else if (cmd in essentialCommands) {
                     typeWriter(`${essentialCommands[cmd](args)}\n`);
-                } else {
-                    typeWriter('Invalid command. Type "challenge" or "embrace".\n');
                 }
-            }
-
-            // Add further decisions leading to the creator
-            if (gameState.decision3) {
-                // Additional 15 decisions can be structured here
-                // Example:
-               
-
- // Add logic for subsequent choices based on previous decisions
-                // You can continue chaining decisions as needed
             }
 
             // Handle general commands
