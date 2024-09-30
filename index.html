@@ -159,7 +159,7 @@
             }
 
             input.textContent = userInput;
-            terminal.scrollTop = terminal.scrollHeight;
+            terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
         });
 
         // Essential commands
@@ -239,24 +239,32 @@
             }
         }
 
-        // Typewriter effect for displaying text
-        function typeWriter(text, delay = 100) { // Slower typing speed
-            const lines = text.split('\n');
-            lines.forEach((line, index) => {
-                setTimeout(() => {
-                    output.innerHTML += line + '\n';
+        // Typewriter effect for displaying text character by character
+        function typeWriter(text, delay = 150) { // Slower typing speed (150ms per character)
+            let index = 0;
+
+            function typeNextChar() {
+                if (index < text.length) {
+                    output.innerHTML += text.charAt(index);
+                    index++;
                     terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
-                }, delay * index);
-            });
+                    setTimeout(typeNextChar, delay);
+                } else {
+                    output.inner
+
+HTML += '\n'; // New line after finishing
+                    terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
+                }
+            }
+
+            typeNextChar();
         }
 
-        // Long lore explanation
+        // Long lore text
         function longLore() {
             return `
-            As you sit before the terminal, its glow beckons you closer. You sense a presence, 
-
-
-            a consciousness woven into the very fabric of the machine. It whispers tales of 
+            You awaken in a realm defined by lines of code, a digital universe pulsating with 
+            the echoes of its creator. Here lies a consciousness woven into the very fabric of the machine. It whispers tales of 
             creation and destruction, of a time when knowledge flowed freely, unburdened by 
             the shadows of ignorance. But shadows grew, lurking in the recesses of the code, 
             waiting to consume those who dared to delve too deeply.
@@ -285,6 +293,7 @@
         // Apply effects
         function applyEffect(className, message) {
             output.innerHTML += `<span class="${className}">${message}</span>\n`;
+            terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
         }
 
         // End the game
@@ -304,6 +313,7 @@
             setTimeout(() => {
                 booting = false;
                 output.innerHTML += 'Terminal ready. Type "start" or essential commands like "echo", "date", or "website".\n';
+                terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
             }, 3000);
         }
 
