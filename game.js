@@ -27,11 +27,12 @@ let enemyBullets;
 let shootSound, damageSound;
 
 function preload() {
-  this.load.image('player', 'https://i.imgur.com/rQYbT3B.png'); // Placeholder player sprite
-  this.load.image('bullet', 'https://i.imgur.com/8ZzMf5U.png'); // Placeholder bullet sprite
-  this.load.image('enemy', 'https://i.imgur.com/3m9fKjt.png'); // Placeholder enemy sprite
-  this.load.audio('shoot', 'shoot.mp3');
-  this.load.audio('damage', 'damage.mp3');
+  // Load new placeholder images
+  this.load.image('player', 'https://opengameart.org/sites/default/files/Spaceship_2.png'); // Player sprite
+  this.load.image('bullet', 'https://opengameart.org/sites/default/files/bullet_2.png'); // Bullet sprite
+  this.load.image('enemy', 'https://opengameart.org/sites/default/files/enemyShip_1.png'); // Enemy sprite
+  this.load.audio('shoot', 'shoot.mp3');  // Shooting sound file
+  this.load.audio('damage', 'damage.mp3'); // Damage sound file
 }
 
 function create() {
