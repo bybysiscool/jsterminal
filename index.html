@@ -11,11 +11,16 @@
         <button id="start-button">Start Game</button>
         <button id="story-mode-button">Story Mode</button>
     </div>
-    <div id="game" style="display: none;">
-        <script src="main.js"></script>
-    </div>
+    <div id="game" style="display: none;"></div>
+    <script src="main.js"></script> <!-- Move main.js script here -->
     <script>
+        // Create the game variable in the global scope
+        let game;
+
         document.getElementById('start-button').onclick = function() {
+            if (!game) {
+                game = new Phaser.Game(config); // Initialize the game on button click
+            }
             game.sound.context.resume(); // Resume the audio context
             startGame();
         };
