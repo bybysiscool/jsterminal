@@ -1,23 +1,3 @@
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 0 },
-            debug: false
-        }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
-
-const game = new Phaser.Game(config);
-
 let player1, player2;
 let bullets;
 let bosses;
@@ -148,14 +128,4 @@ function drawHealthBars() {
     player2HealthBar.clear();
     player2HealthBar.fillStyle(0xff0000, 1);
     player2HealthBar.fillRect(player2.x - 25, player2.y - 20, 50 * (MAX_HEALTH / MAX_HEALTH), 10);
-}
-
-function startGame() {
-    document.getElementById('menu').style.display = 'none';
-    document.getElementById('game').style.display = 'block';
-    game.scene.start();
-}
-
-function startStoryMode() {
-    alert("Story Mode is not fully implemented yet.");
 }
