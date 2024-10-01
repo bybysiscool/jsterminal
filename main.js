@@ -1,9 +1,7 @@
-let player;
+let playerGraphics;
 let cursors;
 let bullets;
 let bosses;
-let bossHealth = 100; // Example health
-let shootingSound, damageSound;
 
 function preload() {
     this.load.audio('shoot', 'shoot.mp3');
@@ -11,10 +9,9 @@ function preload() {
 }
 
 function create() {
-    // Set up the player
-    player = this.physics.add.sprite(400, 300, null);
-    player.setCircle(20); // Create a circle hitbox
-    player.setFillStyle(0x00ff00); // Green player circle
+    // Set up the player as a graphics object
+    playerGraphics = this.add.graphics();
+    drawPlayerCircle(this, 400, 300);
 
     // Set up cursors for movement
     cursors = this.input.keyboard.createCursorKeys();
@@ -25,31 +22,37 @@ function create() {
     // Create a group for bosses
     bosses = this.physics.add.group();
 
-    // Add shooting sound
-    shootingSound = this.sound.add('shoot');
-    damageSound = this.sound.add('damage');
-
     // Spawn the boss
     spawnBoss();
+
+    // Create an event listener for shooting
+    this.input.keyboard.on('keydown-K', shoot);
 }
 
 function update() {
     // Player movement
     if (cursors.left.isDown) {
-        player.x -= 5;
+        playerGraphics.x -= 5;
     } else if (cursors.right.isDown) {
-        player.x += 5;
+        playerGraphics.x += 5;
     }
 
     if (cursors.up.isDown) {
-        player.y -= 5;
+        playerGraphics.y -= 5;
     } else if (cursors.down.isDown) {
-        player.y += 5;
+        playerGraphics.y += 5;
     }
 
     // Limit movement within the game area
-    Phaser.Math.Clamp(player.x, 20, 780);
-    Phaser.Math.Clamp(player.y, 20, 580);
+    playerGraphics.x = Phaser.Math.Clamp(playerGraphics.x, 20, 780);
+    playerGraphics.y = Phaser.Math.Clamp(playerGraphics.y, 20, 580);
+}
+
+// Function to draw the player circle
+function drawPlayerCircle(scene, x, y) {
+    playerGraphics.clear();
+    playerGraphics.fillStyle(0x00ff00, 1); // Green player circle
+    playerGraphics.fillCircle(x, y, 20); // Draw the player circle
 }
 
 // Function to spawn a boss
@@ -59,7 +62,7 @@ function spawnBoss() {
     boss.fillCircle(600, 300, 40); // Draw the boss circle
     bosses.add(boss);
 
-    // Move the boss
+    // Move the boss with a simple tween
     this.tweens.add({
         targets: boss,
         x: 100,
@@ -72,15 +75,16 @@ function spawnBoss() {
 
 // Function to shoot bullets
 function shoot() {
-    const bullet = bullets.create(player.x, player.y, null); // Create a bullet sprite
+    const bullet = bullets.create(playerGraphics.x, playerGraphics.y, null); // Create a bullet
     bullet.setCircle(5); // Circle for the bullet
     bullet.setFillStyle(0xffff00); // Yellow bullet color
     bullet.setVelocityY(-300); // Move the bullet upwards
 
     // Play shooting sound
-    shootingSound.play();
+    this.sound.play('shoot');
 }
 
+// Additional helper function to draw the boss circle if needed
 function drawBossCircle(boss) {
     if (boss.clear) {
         boss.clear(); // Clear previous drawing
@@ -88,6 +92,3 @@ function drawBossCircle(boss) {
     boss.fillStyle(0xff0000, 1); // Boss color
     boss.fillCircle(600, 300, 40); // Draw the boss
 }
-
-// Example key bindings
-this.input.keyboard.on('keydown-K', shoot);
