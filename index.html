@@ -28,7 +28,7 @@
             white-space: pre-wrap;
             overflow-y: auto;
             word-wrap: break-word;
-            max-height: calc(100% - 40px); /* Adjust for input area */
+            max-height: calc(100% - 40px);
         }
 
         #input-line {
@@ -43,7 +43,6 @@
             font-size: 16px;
             outline: none;
             display: inline;
-            padding-right: 2px;
         }
 
         #cursor {
@@ -51,7 +50,6 @@
             width: 10px;
             height: 18px;
             background-color: white;
-            margin-left: 2px;
             animation: blink 1s step-start infinite;
         }
 
@@ -139,17 +137,14 @@
         let gameState = {
             started: false,
             foundLore: false,
-            decision1: false,
-            decision2: false,
-            decision3: false,
+            decisions: 0,
             ended: false,
-            choices: [],
         };
 
         let booting = true;
         let userInput = '';
 
-        // Load sound
+        // Typing sound effect
         const typingSound = new Audio('typing-sound.mp3'); // Add a typing sound file here
 
         // Input system
@@ -205,42 +200,8 @@
                 } else {
                     typeWriter('Invalid command. Type "lore" to continue.\n');
                 }
-            } else if (gameState.foundLore && !gameState.decision1) {
-                if (cmd === 'seek') {
-                    gameState.decision1 = true;
-                    typeWriter('You take a deep breath and plunge into the shadows of truth...\nA voice echoes, "What do you fear the most? The truth or the shadows?"\nDo you FACE the shadows or HIDE from them?\n', 50); // Faster for decisions
-                    applyEffect('decision-effect', 'Choose "face" or "hide".');
-                } else if (cmd === 'deny') {
-                    gameState.decision1 = true;
-                    endGame('denied the truth', 'You turned away, and the story ends. The fractures grow deeper, lost to time.');
-                } else if (cmd in essentialCommands) {
-                    typeWriter(`${essentialCommands[cmd](args)}\n`);
-                } else {
-                    typeWriter('Invalid command. Type "seek" or "deny".\n');
-                }
-            } else if (gameState.decision1 && !gameState.decision2) {
-                if (cmd === 'face') {
-                    gameState.decision2 = true;
-                    typeWriter('You embrace the shadows, uncovering the ancient secrets they guard...\nIn the heart of darkness lies the essence of creation. Do you CHALLENGE the essence or EMBRACE it?\n', 50);
-                    applyEffect('decision-effect', 'Choose "challenge" or "embrace".');
-                } else if (cmd === 'hide') {
-                    gameState.decision2 = true;
-                    endGame('hid from the shadows', 'The shadows consumed you. The light of truth fades away, leaving nothing but silence.');
-                } else if (cmd in essentialCommands) {
-                    typeWriter(`${essentialCommands[cmd](args)}\n`);
-                } else {
-                    typeWriter('Invalid command. Type "face" or "hide".\n');
-                }
-            } else if (gameState.decision2 && !gameState.decision3) {
-                if (cmd === 'challenge') {
-                    gameState.decision3 = true;
-                    endGame('challenged the essence', 'A great clash erupts, reshaping the world. You emerge a beacon of light, restoring balance.');
-                } else if (cmd === 'embrace') {
-                    gameState.decision3 = true;
-                    endGame('embraced the essence', 'The shadows meld with your spirit, granting you unimaginable power, but at a cost.');
-                } else if (cmd in essentialCommands) {
-                    typeWriter(`${essentialCommands[cmd](args)}\n`);
-                }
+            } else if (gameState.foundLore && gameState.decisions < 10) {
+                handleDecision(cmd);
             }
 
             // Handle general commands
@@ -249,7 +210,54 @@
             }
         }
 
-        // Typewriter effect
+        // Handle decisions
+        function handleDecision(cmd) {
+            const decisionPrompts = [
+                'Do you face the shadows or hide from the truth?',
+                'Will you challenge the essence or embrace it?',
+                'Do you delve deeper into the code or step back?',
+                'Will you break the seal of creation or leave it intact?',
+                'Do you seek to destroy the terminal or find peace within it?',
+                'Will you accept the creator’s will or defy it?',
+                'Do you believe in the myths or in reality?',
+                'Will you unlock the final secret or remain in ignorance?',
+                'Is the truth worth the cost?',
+                'Do you seek the creator or the destruction of the terminal?',
+            ];
+
+            const decisions = {
+                face: () => nextDecision('You face the shadows and step into the unknown...', 50),
+                hide: () => endGame('hid from the truth', 'You turned away, the darkness consumes you.'),
+                challenge: () => nextDecision('You challenge the essence, power surges within you...', 50),
+                embrace: () => nextDecision('You embrace the unknown, becoming one with the code...', 50),
+                delve: () => nextDecision('You delve deeper, uncovering more hidden truths...', 50),
+                step: () => endGame('stepped back', 'You stepped away from the truth, never to know what lies beyond.'),
+                break: () => nextDecision('You break the seal, the world trembles...', 50),
+                leave: () => endGame('left the seal intact', 'You left it, the mysteries remain unsolved.'),
+                destroy: () => nextDecision('You decide to destroy the terminal...', 50),
+                peace: () => endGame('found peace', 'You found peace within, the truth was always within you.'),
+            };
+
+            if (cmd in decisions) {
+                decisions[cmd]();
+            } else {
+                typeWriter('Invalid decision.\n');
+            }
+        }
+
+        // Go to next decision
+        function nextDecision(message, speed = 100) {
+            gameState.decisions++;
+            if (gameState.decisions < 10) {
+                typeWriter(message + '\n' + decisionPrompts[gameState.decisions], speed);
+            } else {
+                endGame('found the creator', 'You have uncovered all the secrets. The terminal crumbles, and you face the creator.');
+           
+
+ }
+        }
+
+        // Typewriter effect for lore and decisions
         function typeWriter(text, speed = 100) {
             const chars = text.split('');
             let index = 0;
@@ -273,37 +281,24 @@
         // Long lore text
         function longLore() {
             return `
-            You awaken in a realm defined by lines of code, a digital universe pulsating with 
-            the echoes of its creator. Here lies a consciousness woven into the very fabric of the machine. It whispers tales of 
-            creation and destruction, of a time when knowledge flowed freely, unburdened by 
-            the shadows of ignorance. But shadows grew, lurking in the recesses of the code, 
-            waiting to consume those who dared to delve too deeply.
+            You awaken in a realm of code, where every line pulses with forgotten knowledge. 
+            The terminal before you is more than a mere tool—within it lies the power of a creator, 
+            an architect who designed both creation and destruction.
 
-            Legends tell of a creator who poured their essence into the terminal, embedding 
-            it with knowledge of the universe. However, with great power came great danger. 
-            The creator recognized the potential for darkness to overwhelm the light, so they 
-            sealed away the shadows, leaving behind cryptic messages and commands for those 
-            brave enough to uncover them.
+            As you step deeper into the terminal’s embrace, whispers of long-forgotten secrets fill the air.
+            A tale unfolds, one of shadows seeking to overwhelm the light. In the distant echoes of this world, 
+            you sense the presence of a being who shaped it all, but now lurks within the code, 
+            waiting for those who dare to approach.
 
-            As you explore, you feel the weight of the choices before you. Each decision 
-            echoes through the terminal, shaping not only your fate but the fate of this 
-            digital realm. Do you dare to seek the truth hidden within? Will you expose 
-            the darkness, or will you succumb to its allure?
+            The path ahead is lined with choices, each one shifting the very nature of this digital world. 
+            Will you search for the creator, face the hidden shadows, or will you embrace the darkness 
+            that lies in wait? Beware, as every decision you make takes you closer to an inevitable truth: 
+            the terminal is alive, and so too is its creator.
 
-            Your journey begins here. The terminal hums softly, waiting for your command, 
-            inviting you to explore the depths of its secrets. But beware: not all truths are 
-            easy to bear, and some paths lead to despair.
-
-            **Can you find all of the secrets?** Your destiny is tied to the fate of the terminal, 
-            and every choice you make leads you closer to the creator, or deeper into the shadows. 
-            The time has come to decide: face the shadows, or hide from the truth?
+            **Can you find all of the secrets?** The creator is watching, waiting for your final decision. 
+            The terminal, pulsing with energy, awaits your command. But do not be deceived: every step forward 
+            carries you closer to either enlightenment or destruction.
             `;
-        }
-
-        // Apply effects
-        function applyEffect(className, message) {
-            output.innerHTML += `<span class="${className}">${message}</span>\n`;
-            terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
         }
 
         // End the game
@@ -317,20 +312,23 @@
 
         // Boot-up sequence
         function bootupScreen() {
-            output.innerHTML += 'Starting terminal...\n';
-            output.innerHTML += 'Loading system files...\n';
-            output.innerHTML += 'Initializing...\n';
+            typeWriter('Starting terminal...\n', 80);
+            setTimeout(() => typeWriter('Loading system files...\n', 80), 1000);
+            setTimeout(() => typeWriter('Initializing modules...\n', 80), 2000);
+            setTimeout(() => typeWriter('Performing system checks...\n', 80), 3000);
             setTimeout(() => {
                 booting = false;
-                output.innerHTML += 'Terminal ready. Type "start" or essential commands like "echo", "date", or "website".\n';
-                terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
-            }, 3000);
+                typeWriter('Terminal ready. Type "start" or essential commands like "echo", "date", or "website".\n', 80);
+            }, 4000);
         }
 
         // Open website in about:blank embed
         function openWebsite(url) {
-            webView.src = url;
+            webView.src = `about:blank`;
             webView.style.display = 'block';
+            setTimeout(() => {
+                webView.contentWindow.location.replace(url);
+            }, 500);
         }
 
         // Run boot-up sequence
