@@ -23,10 +23,10 @@ function create() {
     bosses = this.physics.add.group();
 
     // Spawn the boss
-    spawnBoss();
+    this.spawnBoss(); // Call the method on the scene context
 
     // Create an event listener for shooting
-    this.input.keyboard.on('keydown-K', shoot);
+    this.input.keyboard.on('keydown-K', shoot.bind(this)); // Bind context for shoot
 }
 
 function update() {
@@ -58,8 +58,7 @@ function drawPlayerCircle(scene, x, y) {
 // Function to spawn a boss
 function spawnBoss() {
     const boss = this.add.graphics(); // Create graphics for the boss
-    boss.fillStyle(0xff0000, 1); // Red color for the boss
-    boss.fillCircle(600, 300, 40); // Draw the boss circle
+    drawBossCircle(boss); // Draw the boss initially
     bosses.add(boss);
 
     // Move the boss with a simple tween
@@ -84,11 +83,12 @@ function shoot() {
     this.sound.play('shoot');
 }
 
-// Additional helper function to draw the boss circle if needed
+// Helper function to draw the boss circle
 function drawBossCircle(boss) {
-    if (boss.clear) {
-        boss.clear(); // Clear previous drawing
-    }
+    boss.clear(); // Clear previous drawing
     boss.fillStyle(0xff0000, 1); // Boss color
     boss.fillCircle(600, 300, 40); // Draw the boss
 }
+
+// Bind spawnBoss to the Phaser scene
+Phaser.Scene.prototype.spawnBoss = spawnBoss;
