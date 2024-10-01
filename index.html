@@ -35,20 +35,22 @@
             padding: 10px 20px;
             font-size: 1.5rem;
             cursor: pointer;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        #menu button:hover, #storyMode button:hover {
+            background-color: #555;
         }
         .heart {
             color: red;
             font-size: 2rem;
         }
-        #controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        input {
-            margin: 5px;
-            padding: 5px;
-            font-size: 1rem;
+        .health-bar {
+            height: 10px;
+            background-color: red;
+            position: absolute;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -77,12 +79,13 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         
-        let player1 = { x: canvas.width / 4, y: canvas.height - 30, width: 20, height: 20, speed: 5, health: 5 };
-        let player2 = { x: canvas.width * 3/4 - 20, y: canvas.height - 30, width: 20, height: 20, speed: 5, health: 5 };
+        let player1 = { x: canvas.width / 4, y: canvas.height - 50, width: 20, height: 20, speed: 5, health: 5 };
+        let player2 = { x: canvas.width * 3/4 - 20, y: canvas.height - 50, width: 20, height: 20, speed: 5, health: 5 };
         let bullets = [];
         let boss = null;
         let bossBullets = [];
         let isCoop = false;
+        let gameStarted = false;
 
         const bosses = {
             boss1: { x: canvas.width / 2 - 50, y: 50, width: 100, height: 100, health: 10, color: 'red', speed: 1 },
@@ -95,6 +98,7 @@
         }
 
         document.addEventListener("keydown", (event) => {
+            if (!gameStarted) return;
             if (!isCoop) {
                 if (event.key === "w") player1.y -= player1.speed;
                 if (event.key === "s") player1.y += player1.speed;
@@ -127,7 +131,7 @@
                     x: boss.x + boss.width / 2,
                     y: boss.y + boss.height,
                     radius: 5,
-                    speed: 2,
+                    speed: 3,
                     direction: Math.random() * Math.PI * 2
                 };
                 bossBullets.push(bullet);
@@ -184,19 +188,32 @@
                     } else {
                         player2.health -= 1;
                     }
-                    if (player1.health <= 0 || player2.health <= 0) {
+                    if (player1.health <= 0 && player2.health <= 0) {
                         alert('Game Over!');
                         resetGame();
+                    } else {
+                        respawnPlayer(player1);
+                        respawnPlayer(player2);
                     }
                 }
             });
         }
 
-        function drawHearts(player, xOffset) {
-            for (let i = 0; i < player.health; i++) {
-                ctx.fillStyle = "red";
-                ctx.fillText("♥", 10 + (xOffset * 30), 20 + (xOffset * 20));
+        function respawnPlayer(player) {
+            if (player.health <= 0) {
+                player.x = (player === player1) ? canvas.width / 4 : canvas.width * 3 / 4 - 20;
+                player.y = canvas.height - 50;
+                player.health = 5; // Reset health
             }
+        }
+
+        function drawHealthBar(player) {
+            const healthBarWidth = 50;
+            const healthPercent = (player.health / 5) * healthBarWidth;
+            ctx.fillStyle = "black";
+            ctx.fillRect(player.x, player.y - 10, healthBarWidth, 10); // Background bar
+            ctx.fillStyle = "red";
+            ctx.fillRect(player.x, player.y - 10, healthPercent, 10); // Health
         }
 
         function drawBossHealth() {
@@ -208,33 +225,38 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             // Draw players
             ctx.fillStyle = "blue";
-            ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
-            ctx.fillStyle = "yellow";
+            ctx
+
+.fillRect(player1.x, player1.y, player1.width, player1.height);
+            ctx.fillStyle = "orange";
             ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
-
-            // Draw boss
-            ctx.fillStyle = boss.color;
-            ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-
+            
             // Draw bullets
-            ctx.fillStyle = "white";
-            bullets.forEach((bullet) => {
+            ctx.fillStyle = "yellow";
+            bullets.forEach(bullet => {
                 ctx.beginPath();
                 ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
                 ctx.fill();
             });
 
-            // Draw boss bullets
-            bossBullets.forEach((bullet) => {
-               
+            // Draw boss
+            if (boss) {
+                ctx.fillStyle = boss.color;
+                ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+            }
 
- ctx.beginPath();
+            // Draw boss bullets
+            bossBullets.forEach(bullet => {
+                ctx.fillStyle = "red";
+                ctx.beginPath();
                 ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
                 ctx.fill();
+                bullet.y += bullet.speed; // Boss bullets move down
             });
 
-            drawHearts(player1, 0);
-            drawHearts(player2, 1);
+            // Draw health bars
+            drawHealthBar(player1);
+            drawHealthBar(player2);
             drawBossHealth();
         }
 
@@ -249,10 +271,9 @@
 
         function startGame(bossName) {
             boss = bosses[bossName];
-            player1.health = 5;
-            player2.health = 5;
             document.getElementById('menu').style.display = 'none';
             canvas.style.display = 'block';
+            gameStarted = true;
             gameLoop();
         }
 
@@ -275,6 +296,7 @@
             document.getElementById('menu').style.display = 'flex';
             document.getElementById('storyMode').style.display = 'none';
             canvas.style.display = 'none';
+            gameStarted = false;
         }
 
         function showStoryMode() {
