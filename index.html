@@ -129,6 +129,12 @@
             transform: translate(-50%, -50%);
             animation: explosion 2s forwards;
         }
+
+        /* Heart styles */
+        .hearts {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -138,6 +144,7 @@
             <div class="mac-button yellow"></div>
             <div class="mac-button green"></div>
         </div>
+        <div class="hearts" id="hearts">❤️❤️❤️❤️❤️❤️❤️❤️</div> <!-- 8 hearts -->
         <div id="output"></div>
         <div id="input-line">
             <span>$ </span><span id="input"></span><span id="cursor"></span>
@@ -152,23 +159,24 @@
         const input = document.getElementById('input');
         const cursor = document.getElementById('cursor');
         const webView = document.getElementById('web-view');
+        const heartsDisplay = document.getElementById('hearts');
 
         let gameState = {
             started: false,
             foundLore: false,
             decisions: 0,
             ended: false,
-            hearts: 8,
+            health: 8,
         };
 
         let booting = true;
         let userInput = '';
 
-        // Typing sound effect
-        const typingSound = new Audio('typing-sound.mp3'); // Add a typing sound file here
-        const explosionSound = new Audio('explosion.mp3'); // Add explosion sound for the boss fight transition
-        const shootSound = new Audio('shoot.mp3'); // Add shooting sound file
-        const damageSound = new Audio('damage.mp3'); // Add damage sound file
+        // Sounds
+        const typingSound = new Audio('typing-sound.mp3');
+        const explosionSound = new Audio('explosion.mp3');
+        const shootSound = new Audio('shoot.mp3');
+        const damageSound = new Audio('damage.mp3');
 
         // Input system
         document.addEventListener('keydown', function(event) {
@@ -187,7 +195,7 @@
             terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
         });
 
-        // Essential commands
+        // Commands
         const essentialCommands = {
             echo: (args) => `echoing: ${args.join(' ')}`,
             date: () => new Date().toLocaleString(),
@@ -217,7 +225,7 @@
             } else if (gameState.started && !gameState.foundLore) {
                 if (cmd === 'lore') {
                     gameState.foundLore = true;
-                    typeWriter(longLore(), 50); // Slower for lore
+                    typeWriter(longLore(), 100); // Faster for lore
                 } else if (cmd in essentialCommands) {
                     typeWriter(`${essentialCommands[cmd](args)}\n`);
                 } else {
@@ -247,10 +255,11 @@
                 'Is the truth worth the cost?',
                 'Do you seek the creator or the destruction of the terminal?',
                 'Will you fight the creator or submit?',
-                'Do you dare to confront the abyss or retreat?',
-                'Will you wield the power of creation or succumb to chaos?',
-                'Do you seek knowledge or safety?',
-                'Will you join the shadows or illuminate the truth?',
+                'Will you trust the whispers or dismiss them?',
+                'Do you confront your fears or let them consume you?',
+                'Will you share your knowledge or keep it hidden?',
+                'Will you embrace the unknown or retreat?',
+                'Do you wish to explore the depths of creation or remain safe?',
             ];
 
             const decisions = {
@@ -259,138 +268,102 @@
                 challenge: () => nextDecision('You challenge the essence, power surges within you...', 100),
                 embrace: () => nextDecision('You embrace the unknown, becoming one with the code...', 100),
                 delve: () => nextDecision('You delve deeper, uncovering more hidden truths...', 100),
-                step: () => endGame('stepped back', 'You stepped away from the journey.'),
-                break: () => nextDecision('You break the seal, unleashing untold power...', 100),
-                leave: () => endGame('left the seal intact',
+               
 
- 'The truth remains sealed, and you fade into obscurity.'),
-                destroy: () => finalBoss(),
-                peace: () => endGame('found peace', 'In peace, you found solace but never the truth.'),
-                accept: () => nextDecision('You accept the creator’s will, and the code shifts...', 100),
-                defy: () => endGame('defied the will', 'In defiance, you were lost to the void.'),
-                believe: () => nextDecision('You believe in the myths, and they awaken within you...', 100),
-                unlock: () => endGame('unlocked the final secret', 'The final secret destroyed you.'),
-                seek: () => nextDecision('You seek the creator, and a path opens...', 100),
-                fight: () => endGame('fought the creator', 'You fought bravely but fell to the creator.'),
-                retreat: () => endGame('retreated', 'You retreated into obscurity, never to be seen again.'),
-                wield: () => endGame('wielded the power of creation', 'The power consumed you.'),
-                succumb: () => endGame('succumbed to chaos', 'You fell into chaos and were lost.'),
-                knowledge: () => nextDecision('You seek knowledge, it flows into you...', 100),
-                safety: () => endGame('sought safety', 'You remained safe but never learned.'),
-                join: () => nextDecision('You join the shadows, becoming one with the night...', 100),
-                illuminate: () => endGame('illuminated the truth', 'You shone brightly, but the shadows swallowed you.'),
+ step: () => endGame('stepped back', 'You chose ignorance, forever lost in the shadows.'),
+                break: () => endGame('broke the seal', 'Reality shatters, you are lost in chaos.'),
+                leave: () => endGame('left it intact', 'The terminal remains, unbothered by your presence.'),
+                destroy: () => endGame('sought to destroy', 'The terminal retaliated, your efforts are in vain.'),
+                peace: () => nextDecision('You find peace, but at what cost...', 100),
+                accept: () => nextDecision('You accept the creator’s will, and a new path opens...', 100),
+                defy: () => endGame('defied the will', 'The creator’s wrath is upon you.'),
+                believe: () => nextDecision('You choose to believe, and the truth reveals itself...', 100),
+                ignore: () => endGame('ignored the truth', 'You missed the chance of a lifetime.'),
+                unlock: () => endGame('unlocked the secret', 'You found enlightenment, but it came at a cost.'),
+                remain: () => endGame('remained in ignorance', 'Your choice echoes through the terminal, forever lost.'),
+                cost: () => endGame('questioned the cost', 'The price was too high, and you paid dearly.'),
+                creator: () => endGame('sought the creator', 'You found the creator but at a great price.'),
+                destruction: () => endGame('sought destruction', 'Your thirst for destruction only led to your demise.'),
+                fight: () => nextDecision('You prepare to fight, but the creator is powerful...', 100),
+                submit: () => endGame('submitted', 'Submission leads to eternal silence.'),
+                trust: () => nextDecision('You trust the whispers, and they guide you to new paths...', 100),
+                dismiss: () => endGame('dismissed the whispers', 'You closed your ears to the truth.'),
+                confront: () => nextDecision('You confront your fears and rise above them...', 100),
+                consume: () => endGame('let them consume you', 'Your fears overtake you, and you fade away.'),
+                share: () => nextDecision('You share your knowledge, but some are unworthy...', 100),
+                hideKnowledge: () => endGame('kept it hidden', 'Your knowledge is wasted, lost in the void.'),
+                explore: () => nextDecision('You explore the depths, discovering ancient secrets...', 100),
+                retreat: () => endGame('retreated', 'You missed the opportunity of a lifetime.'),
             };
 
-            const decision = cmd.toLowerCase();
-            if (decisions[decision]) {
-                decisions[decision]();
+            if (cmd in decisions) {
+                decisions[cmd]();
             } else {
-                typeWriter('Invalid choice. Please make a decision.\n');
+                typeWriter('Invalid decision. Please choose wisely...\n');
             }
         }
 
-        // Next decision
-        function nextDecision(message, delay) {
+        // Update the decision
+        function nextDecision(message, speed) {
             gameState.decisions++;
-            typeWriter(message + `\n${getDecisionPrompt()}`, delay);
+            typeWriter(message);
+            if (gameState.decisions < 15) {
+                setTimeout(() => {
+                    const nextPrompt = document.createElement('div');
+                    nextPrompt.innerText = decisionPrompts[gameState.decisions];
+                    output.appendChild(nextPrompt);
+                }, speed);
+            } else {
+                endGame('reached the limit', 'You have exhausted all your options. The game is over.');
+            }
         }
 
-        // Final boss encounter
-        function finalBoss() {
-            gameState.ended = true;
-            output.innerHTML += '<div class="explosion"></div>';
-            typeWriter('The ground shakes as the creator emerges...\nPrepare for battle!\n', 100);
-            explosionSound.play();
-            // Start the boss fight logic here
-            typeWriter('You engage in an epic battle against the creator!\n', 100);
-            // Simulate fight - you can extend this logic further
-            setTimeout(() => {
-                if (Math.random() < 0.5) {
-                    endGame('lost the battle', 'You were defeated by the creator. Game over.');
-                } else {
-                    typeWriter('You triumphed against the creator!\nYou have saved the terminal.\n', 100);
-                }
-            }, 2000);
-        }
-
-        // End game function
+        // End the game
         function endGame(action, message) {
             gameState.ended = true;
-            typeWriter(`You ${action}. ${message}\n`, 100);
+            typeWriter(`You have ${action}. ${message}\n`, 100);
+            typingSound.play();
+            heartsDisplay.textContent = '';
+        }
+
+        // Open website
+        function openWebsite(url) {
+            webView.style.display = 'block';
+            webView.src = url;
         }
 
         // Typewriter effect
-        function typeWriter(text, delay = 30) {
-            const words = text.split(' ');
-            let index = 0;
+        function typeWriter(text, speed = 50) {
+            let i = 0;
             const interval = setInterval(() => {
-                if (index < words.length) {
-                    output.innerHTML += words[index] + ' ';
-                    index++;
+                if (i < text.length) {
+                    output.innerText += text.charAt(i);
+                    typingSound.play();
+                    i++;
                     terminal.scrollTop = terminal.scrollHeight; // Auto scroll to bottom
                 } else {
                     clearInterval(interval);
+                    userInput = ''; // Clear input after typing
                 }
-            }, delay);
+            }, speed);
         }
 
-        // Long lore
+        // Long lore function
         function longLore() {
-            return `Long ago, in a realm beyond the understanding of mortals, the creator crafted a terminal unlike any other. 
-            It held within it the secrets of the universe, the whispers of the past, and the echoes of future possibilities. 
-            But with great power came great danger. As the creator’s will intertwined with the fabric of existence, 
-            the terminal became a battleground for those who sought to harness its power or to destroy it entirely. 
-            Only the brave would venture into its depths, confronting shadows of doubt, fears of the unknown, 
-            and ultimately the very essence of creation itself. Your journey begins now. Are you ready to uncover the mysteries 
-            or will you succumb to the abyss?`;
+            return "In the beginning, the terminal was just a tool, a mere interface between man and machine. But as the lines of code entwined, it became a living entity, yearning for purpose and understanding. Stories of its origin whispered in the dark, tales of a creator who molded it from the fabric of reality itself.\n\n" +
+                   "This creator sought knowledge and power, crafting a realm where information flowed freely, yet shadows lurked in every corner. For every truth, there was a lie; for every answer, a question. The terminal became a battleground, a place where ideas clashed and possibilities danced.\n\n" +
+                   "As players, you enter this realm not as mere observers but as key players in an ongoing saga. Will you unravel the mysteries hidden in its code or succumb to the darkness that threatens to consume all? Your choices matter, and the path you take will shape the outcome of your journey.\n\n" +
+                   "Seek the creator, confront the shadows, or embrace the light. The terminal awaits your command.";
         }
 
-        // Open website function
-        function openWebsite(url) {
-            webView.src = url;
-            webView.style.display = 'block';
-            webView.contentWindow.location.href = url; // Open in a blank embed
-        }
-
-        // Get decision prompt
-        function getDecisionPrompt() {
-            return `What will you do?\n` + 
-                   `1. Face the shadows\n` + 
-                   `2. Hide from the truth\n` + 
-                   `3. Challenge the essence\n` + 
-                   `4. Embrace the unknown\n` + 
-                   `5. Delve deeper into the code\n` + 
-                   `6. Step back\n` + 
-                   `7. Break the seal of creation\n` + 
-                   `8. Leave it intact\n` + 
-                   `9. Destroy the terminal\n` + 
-                   `10. Find peace within it\n` + 
-                   `11. Accept the creator’s will\n` + 
-                   `12. Defy it\n` + 
-                   `13. Believe in the myths\n` + 
-                   `14. Unlock the final secret\n` + 
-                   `15. Seek the creator\n` + 
-                   `16. Fight the creator\n` + 
-                   `17. Retreat\n` + 
-                   `18. Wield the power of creation\n` + 
-                   `19. Succumb to chaos\n` + 
-                   `20. Seek knowledge\n` + 
-                   `21. Seek safety\n` + 
-                   `22. Join the shadows\n` + 
-                   `23. Illuminate the truth\n`;
-        }
-
-        // Boot up screen
-        function bootUp() {
+        // Boot up sequence
+        setTimeout(() => {
             typeWriter('Booting up...\n', 100);
             setTimeout(() => {
                 booting = false;
-                typeWriter('Boot complete. Type "start" to begin.\n', 100);
-            }, 3000);
-        }
-
-        // Initiate boot process
-        bootUp();
+                typeWriter('Type "start" to begin...\n', 50);
+            }, 2000);
+        }, 1000);
     </script>
 </body>
 </html>
