@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bullet Hell Game</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.2/phaser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.2/phaser.min.js"></script> <!-- Load Phaser before your scripts -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +14,7 @@
         <button id="story-mode-button">Story Mode</button>
     </div>
     <div id="game" style="display: none;"></div>
-    <script src="main.js"></script>
+    <script src="main.js"></script> <!-- Load your game script after Phaser -->
     <script>
         let game; // Declare the game variable here
 
