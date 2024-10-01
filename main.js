@@ -70,14 +70,23 @@ function spawnBoss() {
         yoyo: true,
         repeat: -1
     });
+
+    // Add boss logic here if needed (like shooting bullets)
 }
 
 // Function to shoot bullets
 function shoot() {
-    const bullet = bullets.create(playerGraphics.x, playerGraphics.y, null); // Create a bullet
-    bullet.setCircle(5); // Circle for the bullet
-    bullet.setFillStyle(0xffff00); // Yellow bullet color
-    bullet.setVelocityY(-300); // Move the bullet upwards
+    const bullet = this.add.graphics(); // Create a graphic for the bullet
+    bullet.fillStyle(0xffff00, 1); // Yellow bullet color
+    bullet.fillCircle(playerGraphics.x, playerGraphics.y, 5); // Draw the bullet
+
+    // Move the bullet upwards
+    this.tweens.add({
+        targets: bullet,
+        y: bullet.y - 600, // Move bullet up
+        duration: 1000,
+        onComplete: () => bullet.destroy() // Remove bullet after it goes off screen
+    });
 
     // Play shooting sound
     this.sound.play('shoot');
