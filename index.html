@@ -18,7 +18,7 @@
             background-color: #222;
             border: 4px solid #fff;
         }
-        #menu {
+        #menu, #createBoss {
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -28,12 +28,9 @@
             top: 0;
             left: 0;
             right: 0;
+            text-align: center;
         }
-        #menu h1 {
-            margin: 0;
-            font-size: 3rem;
-        }
-        #menu button {
+        #menu button, #createBoss button {
             margin: 10px;
             padding: 10px 20px;
             font-size: 1.5rem;
@@ -43,16 +40,37 @@
             color: red;
             font-size: 2rem;
         }
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input {
+            margin: 5px;
+            padding: 5px;
+            font-size: 1rem;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="menu">
         <h1>Bullet Hell Boss</h1>
+        <button onclick="showCreateBoss()">Create Your Boss</button>
         <button onclick="startGame('boss1')">Fight Boss 1</button>
         <button onclick="startGame('boss2')">Fight Boss 2</button>
         <button onclick="startGame('boss3')">Fight Boss 3</button>
     </div>
+
+    <div id="createBoss" style="display:none;">
+        <h2>Create Your Boss</h2>
+        <input id="bossName" placeholder="Boss Name" />
+        <input id="bossHealth" type="number" placeholder="Boss Health" />
+        <input id="bossColor" placeholder="Boss Color (e.g., red)" />
+        <button onclick="createBoss()">Create Boss</button>
+        <button onclick="showMenu()">Back to Menu</button>
+    </div>
+
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
@@ -63,6 +81,14 @@
         let bullets = [];
         let boss = null;
         let bossBullets = [];
+        let controls = {
+            up: "w",
+            down: "s",
+            left: "a",
+            right: "d",
+            shoot: "k",
+            dash: "j"
+        };
 
         const bosses = {
             boss1: { x: canvas.width / 2 - 50, y: 50, width: 100, height: 100, health: 10, color: 'red' },
@@ -70,13 +96,24 @@
             boss3: { x: canvas.width / 2 - 50, y: 50, width: 100, height: 100, health: 20, color: 'green' }
         };
 
+        function loadGameSettings() {
+            const savedControls = JSON.parse(localStorage.getItem('controls'));
+            if (savedControls) {
+                controls = savedControls;
+            }
+            const savedPlayer = JSON.parse(localStorage.getItem('player'));
+            if (savedPlayer) {
+                player.health = savedPlayer.health;
+            }
+        }
+
         document.addEventListener("keydown", (event) => {
-            if (event.key === "w") player.y -= player.speed;
-            if (event.key === "s") player.y += player.speed;
-            if (event.key === "a") player.x -= player.speed;
-            if (event.key === "d") player.x += player.speed;
-            if (event.key === "k") shoot();
-            if (event.key === "j") dash();
+            if (event.key === controls.up) player.y -= player.speed;
+            if (event.key === controls.down) player.y += player.speed;
+            if (event.key === controls.left) player.x -= player.speed;
+            if (event.key === controls.right) player.x += player.speed;
+            if (event.key === controls.shoot) shoot();
+            if (event.key === controls.dash) dash();
         });
 
         function shoot() {
@@ -169,6 +206,11 @@
             }
         }
 
+        function drawBossHealth() {
+            ctx.fillStyle = "white";
+            ctx.fillText(`Boss Health: ${boss.health}`, canvas.width - 200, 20);
+        }
+
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             // Draw player
@@ -197,6 +239,7 @@
 
             // Draw hearts
             drawHearts();
+            drawBossHealth();
         }
 
         function gameLoop() {
@@ -209,22 +252,55 @@
         }
 
         function startGame(bossName) {
-            boss = { ...bosses[bossName] };
+            boss = bosses[bossName];
             player.x = canvas.width / 2;
             player.y = canvas.height - 30;
-            player.health = 5;
-            bullets = [];
-            bossBullets = [];
+            loadGameSettings();
             document.getElementById('menu').style.display = 'none';
+            document.getElementById('createBoss').style.display = 'none';
+            canvas.style.display = 'block';
             gameLoop();
         }
 
         function resetGame() {
-            document.getElementById('menu').style.display = 'flex';
-            boss = null;
             bullets = [];
             bossBullets = [];
+            boss = null;
+            player.health = 5;
+            document.getElementById('menu').style.display = 'block';
+            canvas.style.display = 'none';
         }
+
+        function showMenu() {
+            document.getElementById('menu').style.display = 'block';
+            document.getElementById('createBoss').style.display = 'none';
+        }
+
+        function showCreateBoss() {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('createBoss').style.display = 'flex';
+        }
+
+        function createBoss() {
+            const bossName = document.getElementById('bossName').value;
+            const bossHealth = document.getElementById('bossHealth').value;
+            const bossColor = document.getElementById('bossColor').value;
+
+            if (bossName && bossHealth && bossColor) {
+                bosses[bossName] = { x: canvas.width / 2 - 50, y: 50, width: 100, height: 100, health: parseInt(bossHealth), color: bossColor };
+                alert(`Boss "${bossName}" created!`);
+                showMenu();
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            localStorage.setItem('player', JSON.stringify({ health: player.health }));
+            localStorage.setItem('controls', JSON.stringify(controls));
+        });
+
+        loadGameSettings();
     </script>
 </body>
 </html>
