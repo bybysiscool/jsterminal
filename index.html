@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bullet Hell Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.2/phaser.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 </head>
 <body>
     <div id="menu">
         <h1>Bullet Hell Game</h1>
-        <button onclick="startGame()">Start Game</button>
-        <button onclick="startStoryMode()">Story Mode</button>
+        <button id="start-button">Start Game</button>
+        <button id="story-mode-button">Story Mode</button>
     </div>
-    <div id="game" style="display: none;"></div>
-    <script src="main.js"></script>
+    <div id="game" style="display: none;">
+        <script src="main.js"></script>
+    </div>
+    <script>
+        document.getElementById('start-button').onclick = function() {
+            game.sound.context.resume(); // Resume the audio context
+            startGame();
+        };
+
+        document.getElementById('story-mode-button').onclick = startStoryMode;
+    </script>
 </body>
 </html>
