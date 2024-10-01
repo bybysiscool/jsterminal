@@ -1,52 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bullet Hell Game</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.85.2/dist/phaser.min.js"></script> <!-- Using jsDelivr -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bullet Hell Game</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+    #gameCanvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <div id="menu">
-        <h1>Bullet Hell Game</h1>
-        <button id="start-button">Start Game</button>
-        <button id="story-mode-button">Story Mode</button>
-    </div>
-    <div id="game" style="display: none;"></div>
-    <script src="main.js"></script>
-    <script>
-        let game; // Declare the game variable here
-
-        // Function to start the game
-        function startGame() {
-            const config = {
-                type: Phaser.AUTO,
-                width: 800,
-                height: 600,
-                physics: {
-                    default: 'arcade',
-                    arcade: {
-                        gravity: { y: 0 },
-                        debug: false
-                    }
-                },
-                scene: {
-                    preload: preload,
-                    create: create,
-                    update: update
-                }
-            };
-            game = new Phaser.Game(config); // Initialize the game
-            game.sound.context.resume(); // Resume audio context
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('game').style.display = 'block';
-        }
-
-        document.getElementById('start-button').onclick = startGame; // Start the game on button click
-        document.getElementById('story-mode-button').onclick = function() {
-            alert("Story Mode is not fully implemented yet.");
-        };
-    </script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
