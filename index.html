@@ -242,37 +242,44 @@
         // Handle decisions
         function handleDecision(cmd) {
             const decisionPrompts = [
-                'Do you face the shadows or hide from the truth? (face/hide)',
-                'Will you challenge the essence or embrace it? (challenge/embrace)',
-                'Do you delve deeper into the code or step back? (delve/step)',
-                'Will you break the seal of creation or leave it intact? (break/leave)',
-                'Do you seek to destroy the terminal or find peace within it? (destroy/peace)',
-                'Will you accept the creator’s will or defy it? (accept/defy)',
-                'Do you believe in the myths or in reality? (myths/reality)',
-                'Will you unlock the final secret or remain in ignorance? (unlock/remain)',
-                'Is the truth worth the cost? (truth/nottruth)',
-                'Do you seek the creator or the destruction of the terminal? (seek/destroy)',
-                'Will you fight the creator or submit? (fight/submit)',
-                'Will you uncover the hidden past or choose to forget? (uncover/forget)',
-                'Do you challenge fate or accept your path? (challenge/accept)',
-                'Will you trust your instincts or follow the code? (trust/follow)',
-                'Do you open the door to the unknown or stay behind? (open/stay)',
-                'Will you embrace the chaos or seek order? (chaos/order)',
+                'What will you pick? (seek/embrace)',
+                'What will you choose? (challenge/accept)',
+                'What will you decide? (delve/step back)',
+                'What will you break? (seal/leave)',
+                'What do you wish for? (destroy/peace)',
+                'Will you fight? (creator/submit)',
+                'Will you trust? (instincts/code)',
+                'What will you open? (door/stay)',
+                'Will you embrace? (chaos/order)',
+                'What do you believe? (truth/nottruth)',
+                'What will you uncover? (hidden/past)',
+                'Will you challenge? (fate/accept)',
+                'Do you seek? (creator/destroy)',
+                'What do you want? (truth/ignorance)',
+                'What will you unlock? (final/secret)',
+                'What will you remember? (past/forget)',
             ];
 
+            const currentPrompt = decisionPrompts[gameState.decisions];
+            if (currentPrompt) {
+                typeWriter(`${currentPrompt}\n`, 100);
+                typeWriter(`Your options are: ${currentPrompt.split(' ').slice(-1)[0].split('/').join(', ')}\n`, 100);
+            }
 
-
-            if (decisionPrompts[gameState.decisions]) {
-                const decision = decisionPrompts[gameState.decisions].split(' (')[1].slice(0, -1);
-                if (cmd === decision.split('/')[0]) {
-                    typeWriter(`You chose to ${decision.split('/')[0]}.\n`, 100);
-                    gameState.decisions++;
-                    if (gameState.decisions === decisionPrompts.length) {
-                        triggerBossFight();
-                    }
-                } else {
-                    typeWriter(`Invalid choice. Try again.\n`, 100);
+            if (cmd === 'seek' || cmd === 'embrace' || cmd === 'challenge' || cmd === 'accept' ||
+                cmd === 'delve' || cmd === 'step' || cmd === 'break' || cmd === 'leave' ||
+                cmd === 'destroy' || cmd === 'peace' || cmd === 'fight' || cmd === 'submit' ||
+                cmd === 'trust' || cmd === 'open' || cmd === 'chaos' || cmd === 'order' ||
+                cmd === 'truth' || cmd === 'nottruth' || cmd === 'uncover' || cmd === 'hidden' ||
+                cmd === 'challenge' || cmd === 'fate' || cmd === 'want' || cmd === 'unlock' ||
+                cmd === 'final' || cmd === 'remember' || cmd === 'forget') {
+                typeWriter(`You chose to ${cmd}.\n`, 100);
+                gameState.decisions++;
+                if (gameState.decisions === 15) {
+                    triggerBossFight();
                 }
+            } else {
+                typeWriter('Invalid choice. Try again.\n', 100);
             }
         }
 
@@ -293,9 +300,7 @@
             document.removeEventListener('keydown', handleKeyDown);
 
             function handleKeyDown(event) {
-                if (event.key === 'Enter' || event.key === 'Backspace' || event.key.length === 1) {
-                    event.preventDefault();
-                }
+                event.preventDefault();
             }
 
             const typingInterval = setInterval(() => {
