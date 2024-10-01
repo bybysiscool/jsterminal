@@ -1,9 +1,9 @@
-let player1, player2;
+let player;
+let cursors;
 let bullets;
 let bosses;
-let cursors;
-let player1HealthBar, player2HealthBar;
-const MAX_HEALTH = 5;
+let bossHealth = 100; // Example health
+let shootingSound, damageSound;
 
 function preload() {
     this.load.audio('shoot', 'shoot.mp3');
@@ -11,121 +11,83 @@ function preload() {
 }
 
 function create() {
-    // Create graphics for player sprites
-    player1 = this.add.graphics({ fillStyle: { color: 0x00ff00 } });
-    player1.x = 200;
-    player1.y = 500;
+    // Set up the player
+    player = this.physics.add.sprite(400, 300, null);
+    player.setCircle(20); // Create a circle hitbox
+    player.setFillStyle(0x00ff00); // Green player circle
 
-    player2 = this.add.graphics({ fillStyle: { color: 0xff0000 } });
-    player2.x = 600;
-    player2.y = 500;
+    // Set up cursors for movement
+    cursors = this.input.keyboard.createCursorKeys();
 
+    // Create a bullets group
     bullets = this.physics.add.group();
+
+    // Create a group for bosses
     bosses = this.physics.add.group();
 
+    // Add shooting sound
+    shootingSound = this.sound.add('shoot');
+    damageSound = this.sound.add('damage');
+
+    // Spawn the boss
     spawnBoss();
-
-    cursors = this.input.keyboard.createCursorKeys();
-    this.input.keyboard.on('keydown-W', shootBullet);
-    this.input.keyboard.on('keydown-I', shootBulletPlayer2);
-
-    player1HealthBar = this.add.graphics();
-    player2HealthBar = this.add.graphics();
-
-    this.physics.add.collider(bullets, bosses, hitBoss, null, this);
-
-    // Draw initial circles
-    drawPlayerCircle(player1);
-    drawPlayerCircle(player2);
 }
 
 function update() {
-    // Player 1 Movement
+    // Player movement
     if (cursors.left.isDown) {
-        player1.x -= 5; // Adjust speed for smoother movement
+        player.x -= 5;
     } else if (cursors.right.isDown) {
-        player1.x += 5;
+        player.x += 5;
     }
 
-    // Player 2 Movement
-    if (this.input.keyboard.isDown(Phaser.Input.Keyboard.KeyCodes.A)) {
-        player2.x -= 5;
-    } else if (this.input.keyboard.isDown(Phaser.Input.Keyboard.KeyCodes.D)) {
-        player2.x += 5;
+    if (cursors.up.isDown) {
+        player.y -= 5;
+    } else if (cursors.down.isDown) {
+        player.y += 5;
     }
 
-    // Update boss movement
-    bosses.getChildren().forEach(boss => {
-        moveBoss(boss);
-    });
-
-    drawHealthBars();
+    // Limit movement within the game area
+    Phaser.Math.Clamp(player.x, 20, 780);
+    Phaser.Math.Clamp(player.y, 20, 580);
 }
 
-function shootBullet() {
-    const bullet = bullets.create(player1.x, player1.y, null); // Create a bullet
-    bullet.setCircle(5); // Create bullet shape
-    bullet.setVelocityY(-300);
-    this.sound.play('shoot');
-    drawBulletCircle(bullet);
-}
-
-function shootBulletPlayer2() {
-    const bullet = bullets.create(player2.x, player2.y, null); // Create a bullet
-    bullet.setCircle(5); // Create bullet shape
-    bullet.setVelocityY(-300);
-    this.sound.play('shoot');
-    drawBulletCircle(bullet);
-}
-
-function hitBoss(bullet, boss) {
-    bullet.destroy();
-    boss.health -= 1;
-    this.sound.play('damage');
-    if (boss.health <= 0) {
-        boss.destroy(); // Handle boss defeat
-        spawnBoss(); // Spawn new boss
-    }
-}
-
+// Function to spawn a boss
 function spawnBoss() {
-    const boss = bosses.create(Phaser.Math.Between(100, 700), 50, null); // Create a boss
-    boss.health = 10;
-    boss.setVelocity(Phaser.Math.Between(-50, 50), 0);
-    boss.setCircle(30); // Create boss shape
-    drawBossCircle(boss);
+    const boss = this.add.graphics(); // Create graphics for the boss
+    boss.fillStyle(0xff0000, 1); // Red color for the boss
+    boss.fillCircle(600, 300, 40); // Draw the boss circle
+    bosses.add(boss);
+
+    // Move the boss
+    this.tweens.add({
+        targets: boss,
+        x: 100,
+        duration: 2000,
+        ease: 'Power1',
+        yoyo: true,
+        repeat: -1
+    });
 }
 
-function moveBoss(boss) {
-    // Boss movement pattern
-    if (boss.x >= 770 || boss.x <= 30) {
-        boss.setVelocityX(-boss.body.velocity.x); // Reverse direction
-    }
-}
+// Function to shoot bullets
+function shoot() {
+    const bullet = bullets.create(player.x, player.y, null); // Create a bullet sprite
+    bullet.setCircle(5); // Circle for the bullet
+    bullet.setFillStyle(0xffff00); // Yellow bullet color
+    bullet.setVelocityY(-300); // Move the bullet upwards
 
-function drawPlayerCircle(player) {
-    player.clear();
-    player.fillCircle(0, 0, 15); // Draw player circle
-}
-
-function drawBulletCircle(bullet) {
-    bullet.clear();
-    bullet.fillStyle(0xffff00, 1); // Yellow bullets
-    bullet.fillCircle(0, 0, 5); // Draw bullet circle
+    // Play shooting sound
+    shootingSound.play();
 }
 
 function drawBossCircle(boss) {
-    boss.clear();
-    boss.fillStyle(0xff00ff, 1); // Purple bosses
-    boss.fillCircle(0, 0, 30); // Draw boss circle
+    if (boss.clear) {
+        boss.clear(); // Clear previous drawing
+    }
+    boss.fillStyle(0xff0000, 1); // Boss color
+    boss.fillCircle(600, 300, 40); // Draw the boss
 }
 
-function drawHealthBars() {
-    player1HealthBar.clear();
-    player1HealthBar.fillStyle(0xff0000, 1);
-    player1HealthBar.fillRect(player1.x - 25, player1.y - 20, 50 * (MAX_HEALTH / MAX_HEALTH), 10);
-
-    player2HealthBar.clear();
-    player2HealthBar.fillStyle(0xff0000, 1);
-    player2HealthBar.fillRect(player2.x - 25, player2.y - 20, 50 * (MAX_HEALTH / MAX_HEALTH), 10);
-}
+// Example key bindings
+this.input.keyboard.on('keydown-K', shoot);
