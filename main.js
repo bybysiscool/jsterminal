@@ -1,5 +1,4 @@
 let playerGraphics;
-let cursors;
 let bullets;
 let bosses;
 let playerHealth = 100; // Player health
@@ -30,6 +29,9 @@ function create() {
 
     // Set up mouse input for shooting
     this.input.on('pointerdown', shoot.bind(this)); // Shoot when mouse is clicked
+
+    // Set up the physics for the bullets
+    this.physics.add.collider(bullets, bosses, hitBoss, null, this);
 }
 
 function update() {
@@ -63,7 +65,7 @@ function spawnBoss() {
     this.time.addEvent({
         delay: 1000, // Boss shoots every second
         callback: () => {
-            shootBoss(boss); // Call the shootBoss function
+            shootBoss.call(this, boss, bossHealthBar); // Call the shootBoss function
         },
         loop: true
     });
@@ -77,9 +79,6 @@ function spawnBoss() {
         yoyo: true,
         repeat: -1
     });
-
-    // Store boss reference and health bar
-    boss.bossHealthBar = bossHealthBar;
 }
 
 // Function to shoot bullets from the player
@@ -88,7 +87,7 @@ function shoot() {
     bullet.fillStyle(0xffff00, 1); // Yellow bullet color
     bullet.fillCircle(playerGraphics.x, playerGraphics.y, 5); // Draw the bullet
 
-    // Move the bullet towards the top of the screen
+    // Move the bullet upwards
     this.tweens.add({
         targets: bullet,
         y: bullet.y - 600, // Move bullet up
@@ -101,7 +100,7 @@ function shoot() {
 }
 
 // Function for the boss to shoot at the player
-function shootBoss(boss) {
+function shootBoss(boss, bossHealthBar) {
     const bullet = this.add.graphics(); // Create a graphic for the boss bullet
     bullet.fillStyle(0xff0000, 1); // Red bullet color
     bullet.fillCircle(boss.x, boss.y, 5); // Draw the bullet
@@ -124,6 +123,11 @@ function shootBoss(boss) {
             }
         }
     });
+
+    // Update boss health bar
+    bossHealthBar.clear();
+    bossHealthBar.fillStyle(0xff0000, 1); // Red color for boss health
+    bossHealthBar.fillRect(550, 50, bossHealth, 10); // Draw the boss health bar based on boss health
 }
 
 // Helper function to draw the boss circle
@@ -131,6 +135,23 @@ function drawBossCircle(boss) {
     boss.clear(); // Clear previous drawing
     boss.fillStyle(0xff0000, 1); // Boss color
     boss.fillCircle(600, 300, 40); // Draw the boss
+}
+
+// Function to handle bullet hitting the boss
+function hitBoss(bullet, boss) {
+    bullet.destroy(); // Destroy the bullet
+    boss.bossHealth -= 10; // Decrease boss health
+
+    // Update boss health bar
+    boss.bossHealthBar.clear();
+    boss.bossHealthBar.fillStyle(0xff0000, 1); // Red color for boss health
+    boss.bossHealthBar.fillRect(550, 50, boss.bossHealth, 10); // Update health bar
+
+    // Check if the boss is defeated
+    if (boss.bossHealth <= 0) {
+        boss.destroy(); // Destroy the boss
+        alert("Boss defeated!"); // Notify player
+    }
 }
 
 // Bind spawnBoss to the Phaser scene
