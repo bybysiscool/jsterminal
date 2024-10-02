@@ -11,6 +11,7 @@
     <div class="left-column">
       <img src="osaka.png" alt="Osaka" id="osaka" class="clicker-button">
       <p>Clicks: <span id="score">0</span></p>
+      <p>Cash: $<span id="cash">0</span></p>
       <p>CPS: <span id="cps">0</span></p>
       <button id="export-button">Export Data</button>
       <button id="import-button">Import Data</button>
@@ -19,22 +20,26 @@
 
     <div class="right-column">
       <h2>Upgrades</h2>
-      <div class="upgrade" id="upgrade-click-value">
-        <button class="upgrade-button" id="upgrade1" disabled>Increase Click Value (Cost: 10)</button>
+      <div class="upgrade">
+        <button class="upgrade-button" id="upgrade1" disabled>Increase Click Value (Cost: $10)</button>
       </div>
-      <div class="upgrade" id="auto-clicker">
-        <button class="upgrade-button" id="upgrade2" disabled>Auto Clicker (Cost: 100)</button>
+      <div class="upgrade">
+        <button class="upgrade-button" id="upgrade2" disabled>Auto Clicker (Cost: $100)</button>
       </div>
-      <div class="upgrade" id="multiplier-upgrade">
-        <button class="upgrade-button" id="upgrade3" disabled>Multiplier (Cost: 500)</button>
+      <div class="upgrade">
+        <button class="upgrade-button" id="upgrade3" disabled>Multiplier (Cost: $500)</button>
       </div>
-      <div class="upgrade" id="auto-clicker-upgrade">
-        <button class="upgrade-button" id="upgrade4" disabled>Auto Clicker Speed Upgrade (Cost: 1000)</button>
+      <div class="upgrade">
+        <button class="upgrade-button" id="upgrade4" disabled>Auto Clicker Speed Upgrade (Cost: $1000)</button>
       </div>
-      <!-- More upgrades -->
+      <!-- Add more upgrades as needed -->
     </div>
   </div>
+
   <audio id="click-sound" src="click.mp3"></audio>
+  <audio id="upgrade-sound" src="upgrade.mp3"></audio>
+  <div id="click-effect"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
