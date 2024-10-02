@@ -8,11 +8,16 @@
 </head>
 <body>
   <div class="game-container">
-    <h1>Osaka Clicker</h1>
-    <div id="osaka" class="clicker-button">Click Osaka!</div>
-    <p>Clicks: <span id="score">0</span></p>
+    <div class="left-column">
+      <img src="osaka.png" alt="Osaka" id="osaka" class="clicker-button">
+      <p>Clicks: <span id="score">0</span></p>
+      <p>CPS: <span id="cps">0</span></p>
+      <button id="export-button">Export Data</button>
+      <button id="import-button">Import Data</button>
+      <input type="file" id="file-input" style="display: none;">
+    </div>
 
-    <div class="upgrade-section">
+    <div class="right-column">
       <h2>Upgrades</h2>
       <div class="upgrade" id="upgrade-click-value">
         <button class="upgrade-button" id="upgrade1" disabled>Increase Click Value (Cost: 10)</button>
@@ -26,9 +31,10 @@
       <div class="upgrade" id="auto-clicker-upgrade">
         <button class="upgrade-button" id="upgrade4" disabled>Auto Clicker Speed Upgrade (Cost: 1000)</button>
       </div>
-      <!-- More upgrades can be added here -->
+      <!-- More upgrades -->
     </div>
   </div>
+  <audio id="click-sound" src="click.mp3"></audio>
   <script src="script.js"></script>
 </body>
 </html>
