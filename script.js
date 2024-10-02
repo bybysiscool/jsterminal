@@ -6,17 +6,22 @@ let autoClickCost = 100;
 let lastClickTime = 0;
 let cps = 0;
 
+// Rebirth variables
+let rebirthCost = 1000;
+let rebirths = 0;
+
 // Selectors
 const scoreDisplay = document.getElementById('score');
 const cashDisplay = document.getElementById('cash');
 const cpsDisplay = document.getElementById('cps');
 const osakaButton = document.getElementById('osaka');
 const clickSound = document.getElementById('click-sound');
+const rebirthSound = document.getElementById('rebirth-sound');
 const clickEffect = document.getElementById('click-effect');
 
 // Upgrades
 const upgradeClickButton = document.getElementById('upgrade1');
-const autoClickButton = document.getElementById('upgrade2');
+const rebirthButton = document.getElementById('rebirth-button');
 
 // Clicking Osaka Button
 osakaButton.addEventListener('click', (e) => {
@@ -63,6 +68,25 @@ function showClickEffect(x, y) {
   }, 300);
 }
 
+// Rebirth
+rebirthButton.addEventListener('click', () => {
+  if (cash >= rebirthCost) {
+    cash -= rebirthCost;
+    rebirths += 1;
+    score = 0; // Reset score on rebirth
+    clickValue = Math.floor(clickValue * 1.5); // Increase click value on rebirth
+    rebirthCost *= 2; // Increase rebirth cost
+    rebirthSound.play();
+    alert(`Rebirth successful! Total Rebirths: ${rebirths}`);
+    
+    cashDisplay.textContent = cash;
+    scoreDisplay.textContent = score;
+    rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
+    checkUpgrades();
+    saveGame();
+  }
+});
+
 // Upgrade: Increase Click Value
 upgradeClickButton.addEventListener('click', () => {
   if (cash >= upgradeClickCost) {
@@ -83,7 +107,7 @@ function checkUpgrades() {
 
 // Save game data to local storage
 function saveGame() {
-  const gameData = { score, cash, clickValue, upgradeClickCost };
+  const gameData = { score, cash, clickValue, upgradeClickCost, rebirthCost, rebirths };
   localStorage.setItem('osakaClickerSave', JSON.stringify(gameData));
 }
 
@@ -91,22 +115,59 @@ function saveGame() {
 function loadGame() {
   const savedData = localStorage.getItem('osakaClickerSave');
   if (savedData) {
-    const { score: savedScore, cash: savedCash, clickValue: savedClickValue, upgradeClickCost: savedUpgradeClickCost } = JSON.parse(savedData);
-    score = savedScore;
+    const { score: savedScore, cash: savedCash, clickValue: savedClickValue, upgradeClickCost: savedUpgradeClickCost, rebirthCost: savedRebirthCost, rebirths: savedRebirths } = JSON.parse(savedData);
+    score =
+
+ savedScore;
     cash = savedCash;
     clickValue = savedClickValue;
     upgradeClickCost = savedUpgradeClickCost;
-    updateUI();
+    rebirthCost = savedRebirthCost;
+    rebirths = savedRebirths;
+    scoreDisplay.textContent = score;
+    cashDisplay.textContent = cash;
+    cpsDisplay.textContent = cps;
+    rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
+    checkUpgrades();
   }
 }
 
-// Update UI after loading game
-function updateUI() {
-  scoreDisplay.textContent = score;
-  cashDisplay.textContent = cash;
-  upgradeClickButton.textContent = `Increase Click Value (Cost: $${upgradeClickCost})`;
-  checkUpgrades();
-}
+// Import data
+document.getElementById('import-button').addEventListener('click', () => {
+  const fileInput = document.getElementById('file-input');
+  fileInput.click();
+  fileInput.onchange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const importedData = JSON.parse(e.target.result);
+      score = importedData.score;
+      cash = importedData.cash;
+      clickValue = importedData.clickValue;
+      upgradeClickCost = importedData.upgradeClickCost;
+      rebirthCost = importedData.rebirthCost;
+      rebirths = importedData.rebirths;
+      scoreDisplay.textContent = score;
+      cashDisplay.textContent = cash;
+      rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
+      checkUpgrades();
+    };
+    reader.readAsText(file);
+  };
+});
 
-// Load game on start
-loadGame();
+// Export data
+document.getElementById('export-button').addEventListener('click', () => {
+  const gameData = { score, cash, clickValue, upgradeClickCost, rebirthCost, rebirths };
+  const jsonData = JSON.stringify(gameData);
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'osaka_clicker_save.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// Load game on page load
+window.onload = loadGame;
