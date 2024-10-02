@@ -1,21 +1,22 @@
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
-    margin: 0;
-    background-color: #282c34;
-    color: white;
-    font-family: Arial, sans-serif;
+  text-align: center;
+  font-family: Arial, sans-serif;
 }
 
-#menu {
-    text-align: center;
+.game-container {
+  margin-top: 100px;
 }
 
-button {
-    margin: 10px;
-    padding: 10px;
-    font-size: 16px;
+.clicker-button {
+  background-color: lightblue;
+  border: 2px solid blue;
+  padding: 20px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#upgrade-button {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
 }
