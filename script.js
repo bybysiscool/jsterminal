@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cashDisplay.textContent = cash;
 
     // Play click sound
+    clickSound.currentTime = 0; // Reset sound to start
     clickSound.play();
 
     // Change image to osakam.png while clicking
