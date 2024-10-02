@@ -27,8 +27,8 @@ body {
 
 .clicker-button {
   cursor: pointer;
-  width: 300px; /* Increased size */
-  height: 300px; /* Increased size */
+  width: 300px; /* Adjust size */
+  height: 300px; /* Adjust size */
 }
 
 #score, #cash, #cps {
@@ -52,8 +52,8 @@ body {
   cursor: not-allowed;
 }
 
-#rebirth-button {
-  background-color: #FFA500; /* Orange for rebirth button */
+#rebirth-button, #reset-button {
+  background-color: #FFA500; /* Orange for buttons */
   color: white;
   border: none;
   padding: 15px;
