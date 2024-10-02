@@ -7,43 +7,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="game-container">
-    <div class="left-column">
-      <img src="osaka_idle.png" alt="Osaka Idle" id="osaka" class="clicker-button">
-      <p>Clicks: <span id="score">0</span></p>
-      <p>Cash: $<span id="cash">0</span></p>
-      <p>CPS: <span id="cps">0</span></p>
-      <button id="rebirth-button">Rebirth (Cost: $1000)</button>
-      <button id="reset-button">Reset Data</button>
-      <button id="export-button">Export Data</button>
-      <button id="import-button">Import Data</button>
-      <input type="file" id="file-input" style="display: none;">
+  <div>
+    <img id="osaka" src="osaka_idle.png" alt="Osaka">
+    <div>
+      Score: <span id="score">0</span><br>
+      Cash: <span id="cash">0</span><br>
+      CPS: <span id="cps">0</span><br>
     </div>
-
-    <div class="right-column">
-      <h2>Upgrades</h2>
-      <div class="upgrade">
-        <button class="upgrade-button" id="upgrade1" disabled>Increase Click Value (Cost: $10)</button>
-      </div>
-      <div class="upgrade">
-        <button class="upgrade-button" id="upgrade2" disabled>Auto Clicker (Cost: $100)</button>
-      </div>
-      <div class="upgrade">
-        <button class="upgrade-button" id="upgrade3" disabled>Multiplier (Cost: $500)</button>
-      </div>
-      <div class="upgrade">
-        <button class="upgrade-button" id="upgrade4" disabled>Auto Clicker Speed Upgrade (Cost: $1000)</button>
-      </div>
-    </div>
+    <button id="upgrade1">Upgrade Click (Cost: $10)</button>
+    <button id="rebirth-button">Rebirth (Cost: $1000)</button>
+    <button id="reset-button">Reset Data</button>
+    <button id="import-button">Import Data</button>
+    <button id="export-button">Export Data</button>
+    <audio id="click-sound" src="click-sound.mp3"></audio>
+    <audio id="rebirth-sound" src="rebirth-sound.mp3"></audio>
+    <audio id="fever-sound" src="fever-sound.mp3"></audio>
+    <audio id="background-music" src="background-music.mp3" loop></audio>
+    <div id="click-effect"></div>
   </div>
-
-  <audio id="click-sound" src="click.mp3"></audio>
-  <audio id="rebirth-sound" src="rebirth.mp3"></audio>
-  <audio id="upgrade-sound" src="upgrade.mp3"></audio>
-  <audio id="fever-sound" src="fever.mp3"></audio>
-  <audio id="background-music" src="background.mp3" loop></audio>
-  <div id="click-effect"></div>
-
+  <input type="file" id="file-input" style="display:none;">
   <script src="script.js"></script>
 </body>
 </html>
