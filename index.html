@@ -3,21 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bullet Hell Game</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: black;
-    }
-    #gameCanvas {
-      display: block;
-    }
-  </style>
+  <title>Osaka Clicker</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
-  <script src="game.js"></script>
+  <div class="game-container">
+    <h1>Osaka Clicker</h1>
+    <div id="osaka" class="clicker-button">Click Osaka!</div>
+    <p>Clicks: <span id="score">0</span></p>
+    <button id="upgrade-button" disabled>Buy Upgrade (Cost: 10)</button>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
