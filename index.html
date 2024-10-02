@@ -9,11 +9,12 @@
 <body>
   <div class="game-container">
     <div class="left-column">
-      <img src="osaka.png" alt="Osaka" id="osaka" class="clicker-button">
+      <img src="osaka_idle.png" alt="Osaka Idle" id="osaka" class="clicker-button">
       <p>Clicks: <span id="score">0</span></p>
       <p>Cash: $<span id="cash">0</span></p>
       <p>CPS: <span id="cps">0</span></p>
       <button id="rebirth-button">Rebirth (Cost: $1000)</button>
+      <button id="reset-button">Reset Data</button>
       <button id="export-button">Export Data</button>
       <button id="import-button">Import Data</button>
       <input type="file" id="file-input" style="display: none;">
@@ -39,6 +40,8 @@
   <audio id="click-sound" src="click.mp3"></audio>
   <audio id="rebirth-sound" src="rebirth.mp3"></audio>
   <audio id="upgrade-sound" src="upgrade.mp3"></audio>
+  <audio id="fever-sound" src="fever.mp3"></audio>
+  <audio id="background-music" src="background.mp3" loop></audio>
   <div id="click-effect"></div>
 
   <script src="script.js"></script>
