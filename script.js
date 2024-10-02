@@ -3,10 +3,6 @@ let cash = 0;
 let clickValue = 1;
 let upgradeClickCost = 10;
 let autoClickCost = 100;
-let multiplierCost = 500;
-let autoClickSpeedCost = 1000;
-let autoClickActive = false;
-let multiplierActive = false;
 let lastClickTime = 0;
 let cps = 0;
 
@@ -21,15 +17,8 @@ const clickEffect = document.getElementById('click-effect');
 // Upgrades
 const upgradeClickButton = document.getElementById('upgrade1');
 const autoClickButton = document.getElementById('upgrade2');
-const multiplierButton = document.getElementById('upgrade3');
-const autoClickSpeedButton = document.getElementById('upgrade4');
 
-// Export/Import
-const exportButton = document.getElementById('export-button');
-const importButton = document.getElementById('import-button');
-const fileInput = document.getElementById('file-input');
-
-// Click Osaka Button
+// Clicking Osaka Button
 osakaButton.addEventListener('click', (e) => {
   score += clickValue;
   cash += clickValue;
@@ -40,8 +29,9 @@ osakaButton.addEventListener('click', (e) => {
   clickSound.play();
 
   // Show click effect
-  const clickX = e.clientX;
-  const clickY = e.clientY;
+  const rect = osakaButton.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
   showClickEffect(clickX, clickY);
 
   // Calculate CPS
@@ -62,9 +52,15 @@ function showClickEffect(x, y) {
   clickEffect.style.left = `${x - 50}px`;
   clickEffect.style.top = `${y - 50}px`;
   clickEffect.style.display = 'block';
+
+  // Animate the effect
+  clickEffect.classList.remove('click-effect-animate');
+  void clickEffect.offsetWidth;  // Reset animation
+  clickEffect.classList.add('click-effect-animate');
+  
   setTimeout(() => {
     clickEffect.style.display = 'none';
-  }, 200);
+  }, 300);
 }
 
 // Upgrade: Increase Click Value
@@ -80,68 +76,9 @@ upgradeClickButton.addEventListener('click', () => {
   }
 });
 
-// Auto Clicker
-autoClickButton.addEventListener('click', () => {
-  if (cash >= autoClickCost) {
-    cash -= autoClickCost;
-    autoClickActive = true;
-    autoClickCost *= 2;
-    autoClickButton.textContent = `Auto Clicker (Cost: $${autoClickCost})`;
-    cashDisplay.textContent = cash;
-    startAutoClicker();
-    checkUpgrades();
-    saveGame();
-  }
-});
-
-// Export Data
-exportButton.addEventListener('click', () => {
-  const data = JSON.stringify({ score, cash, clickValue, upgradeClickCost });
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'osaka_clicker_save.json';
-  a.click();
-});
-
-// Import Data
-importButton.addEventListener('click', () => {
-  fileInput.click();
-});
-
-fileInput.addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-  reader.onload = () => {
-    const data = JSON.parse(reader.result);
-    score = data.score;
-    cash = data.cash;
-    clickValue = data.clickValue;
-    upgradeClickCost = data.upgradeClickCost;
-    updateUI();
-  };
-  reader.readAsText(file);
-});
-
-// Auto Clicker Function
-function startAutoClicker(interval = 1000) {
-  if (autoClickActive) {
-    setInterval(() => {
-      score += clickValue;
-      cash += clickValue;
-      scoreDisplay.textContent = score;
-      cashDisplay.textContent = cash;
-      checkUpgrades();
-      saveGame();
-    }, interval);
-  }
-}
-
-// Check available upgrades
+// Check for available upgrades
 function checkUpgrades() {
   upgradeClickButton.disabled = cash < upgradeClickCost;
-  autoClickButton.disabled = cash < autoClickCost;
 }
 
 // Save game data to local storage
@@ -159,4 +96,17 @@ function loadGame() {
     cash = savedCash;
     clickValue = savedClickValue;
     upgradeClickCost = savedUpgradeClickCost;
-    updateUI​⬤
+    updateUI();
+  }
+}
+
+// Update UI after loading game
+function updateUI() {
+  scoreDisplay.textContent = score;
+  cashDisplay.textContent = cash;
+  upgradeClickButton.textContent = `Increase Click Value (Cost: $${upgradeClickCost})`;
+  checkUpgrades();
+}
+
+// Load game on start
+loadGame();
