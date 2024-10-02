@@ -1,36 +1,46 @@
 body {
-  background-image: url('azumanga-background.jpg');
-  background-size: cover;
-  font-family: 'Arial', sans-serif;
-  color: white;
+  text-align: center;
+  background-color: #f0f0f0; /* Azumanga Daioh themed background */
 }
 
-#score, #cash, #cps {
-  font-size: 24px; /* Increased font size */
-  margin: 10px;
+#title {
+  font-size: 2em; /* Title size */
+  color: #ff6347; /* Azumanga Daioh color theme */
 }
 
-#osaka {
-  width: 200px; /* Increased image size */
-  height: auto;
+img {
   cursor: pointer;
-  transition: transform 0.1s;
+}
+
+button {
+  margin: 10px;
+  padding: 15px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 200px; /* Increase button size */
 }
 
 #click-effect {
   position: absolute;
-  display: none;
-  width: 100px; /* Increase effect size */
+  width: 100px;
   height: 100px;
-  background: rgba(255, 255, 0, 0.8);
+  background-color: rgba(255, 215, 0, 0.8);
   border-radius: 50%;
+  display: none;
   pointer-events: none;
-  z-index: 10;
 }
 
-button {
-  font-size: 20px; /* Increased button size */
-  padding: 10px 20px;
-  margin: 10px;
-  cursor: pointer;
+.click-effect-animate {
+  animation: click-effect 0.3s ease-out;
+}
+
+@keyframes click-effect {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
 }
