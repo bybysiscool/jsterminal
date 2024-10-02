@@ -11,7 +11,23 @@
     <h1>Osaka Clicker</h1>
     <div id="osaka" class="clicker-button">Click Osaka!</div>
     <p>Clicks: <span id="score">0</span></p>
-    <button id="upgrade-button" disabled>Buy Upgrade (Cost: 10)</button>
+
+    <div class="upgrade-section">
+      <h2>Upgrades</h2>
+      <div class="upgrade" id="upgrade-click-value">
+        <button class="upgrade-button" id="upgrade1" disabled>Increase Click Value (Cost: 10)</button>
+      </div>
+      <div class="upgrade" id="auto-clicker">
+        <button class="upgrade-button" id="upgrade2" disabled>Auto Clicker (Cost: 100)</button>
+      </div>
+      <div class="upgrade" id="multiplier-upgrade">
+        <button class="upgrade-button" id="upgrade3" disabled>Multiplier (Cost: 500)</button>
+      </div>
+      <div class="upgrade" id="auto-clicker-upgrade">
+        <button class="upgrade-button" id="upgrade4" disabled>Auto Clicker Speed Upgrade (Cost: 1000)</button>
+      </div>
+      <!-- More upgrades can be added here -->
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
