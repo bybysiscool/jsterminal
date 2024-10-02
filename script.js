@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let feverMode = false;
 
   // Selectors
+  const titleDisplay = document.getElementById('title');
   const scoreDisplay = document.getElementById('score');
   const cashDisplay = document.getElementById('cash');
   const cpsDisplay = document.getElementById('cps');
@@ -24,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Upgrades
   const upgradeClickButton = document.getElementById('upgrade1');
+  const autoclickerButton = document.getElementById('autoclicker');
+  const upgradeCPSButton = document.getElementById('upgradeCPS');
   const rebirthButton = document.getElementById('rebirth-button');
   const resetButton = document.getElementById('reset-button');
 
@@ -86,6 +89,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
   }
 
+  // Autoclicker Logic
+  let autoclickerActive = false;
+  autoclickerButton.addEventListener('click', () => {
+    if (cash >= 50) { // Example cost for autoclicker
+      cash -= 50;
+      autoclickerActive = true;
+      alert('Autoclicker activated! Clicks will be added automatically.');
+      setInterval(() => {
+        score += 1; // Autoclicker adds 1 score per second
+        cash += 1; // Autoclicker adds 1 cash per second
+        scoreDisplay.textContent = score;
+        cashDisplay.textContent = cash;
+      }, 1000);
+      checkUpgrades();
+      saveGame();
+    }
+  });
+
+  // Upgrade CPS
+  upgradeCPSButton.addEventListener('click', () => {
+    if (cash >= 100) { // Example cost for CPS upgrade
+      cash -= 100;
+      cps += 1; // Increase CPS
+      alert('CPS upgraded!');
+      checkUpgrades();
+      saveGame();
+    }
+  });
+
   // Rebirth
   rebirthButton.addEventListener('click', () => {
     if (cash >= rebirthCost) {
@@ -144,6 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check Upgrades
   function checkUpgrades() {
     upgradeClickButton.disabled = cash < upgradeClickCost;
+    autoclickerButton.disabled = autoclickerActive; // Disable if already purchased
+    upgradeCPSButton.disabled = cash < 100; // Example cost for CPS upgrade
     rebirthButton.disabled = cash < rebirthCost;
   }
 
@@ -207,15 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const blob = new Blob([jsonData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href
+
+ = url;
     a.download = 'osaka_clicker_save.json';
     a.click();
     URL.revokeObjectURL(url);
   });
 
-  // Load game on page load
-  window.onload = loadGame();
-
-  // Background music play
-  backgroundMusic.play();
+  loadGame();
+  backgroundMusic.play(); // Start background music
 });
