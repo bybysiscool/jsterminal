@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const clickSound = document.getElementById('click-sound');
   const rebirthSound = document.getElementById('rebirth-sound');
   const feverSound = document.getElementById('fever-sound');
-  const clickEffect = document.getElementById('click-effect');
   const backgroundMusic = document.getElementById('background-music');
 
   // Upgrades
@@ -29,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const upgradeCPSButton = document.getElementById('upgradeCPS');
   const rebirthButton = document.getElementById('rebirth-button');
   const resetButton = document.getElementById('reset-button');
+  const clickEffectContainer = document.getElementById('click-effect-container');
 
   // Clicking Osaka Button
   osakaButton.addEventListener('click', (e) => {
@@ -38,150 +38,55 @@ document.addEventListener('DOMContentLoaded', () => {
     cashDisplay.textContent = cash;
 
     // Play click sound
-    clickSound.currentTime = 0; // Reset sound to start
+    clickSound.currentTime = 0;
     clickSound.play();
 
-    // Change image to osakam.png while clicking
-    osakaButton.src = 'osakam.png'; // Click image
-    setTimeout(() => {
-      osakaButton.src = 'osaka_idle.png'; // Return to idle image after 100ms
-    }, 100);
-
-    // Show click effect
-    const rect = osakaButton.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-    showClickEffect(clickX, clickY);
-
-    // Calculate CPS
-    let currentTime = Date.now();
-    if (lastClickTime) {
-      let timeDiff = (currentTime - lastClickTime) / 1000;
-      cps = (1 / timeDiff).toFixed(2);
-      cpsDisplay.textContent = cps;
-    }
-    lastClickTime = currentTime;
+    // Click effect
+    showClickEffect(e.clientX, e.clientY);
 
     // Fever mode activation
     if (feverMode) {
-      score += clickValue; // Double score in fever mode
-      cash += clickValue;  // Double cash in fever mode
-      feverSound.play(); // Play fever sound
+      score += clickValue;
+      cash += clickValue;
+      feverSound.play();
     }
 
     checkUpgrades();
     saveGame();
   });
 
-  // Show Click Effect
+  // Improved Click Effect
   function showClickEffect(x, y) {
-    clickEffect.style.left = `${x - 50}px`;
-    clickEffect.style.top = `${y - 50}px`;
-    clickEffect.style.display = 'block';
-
-    // Animate the effect
-    clickEffect.classList.remove('click-effect-animate');
-    void clickEffect.offsetWidth;  // Reset animation
-    clickEffect.classList.add('click-effect-animate');
+    const effect = document.createElement('div');
+    effect.classList.add('click-effect');
+    effect.style.left = `${x}px`;
+    effect.style.top = `${y}px`;
+    clickEffectContainer.appendChild(effect);
 
     setTimeout(() => {
-      clickEffect.style.display = 'none';
-    }, 300);
+      effect.style.opacity = '0';
+      effect.style.transform = 'scale(1.5)';
+    }, 50);
+
+    setTimeout(() => {
+      effect.remove();
+    }, 500);
   }
-
-  // Autoclicker Logic
-  let autoclickerActive = false;
-  autoclickerButton.addEventListener('click', () => {
-    if (cash >= 50) { // Example cost for autoclicker
-      cash -= 50;
-      autoclickerActive = true;
-      alert('Autoclicker activated! Clicks will be added automatically.');
-      setInterval(() => {
-        score += 1; // Autoclicker adds 1 score per second
-        cash += 1; // Autoclicker adds 1 cash per second
-        scoreDisplay.textContent = score;
-        cashDisplay.textContent = cash;
-      }, 1000);
-      checkUpgrades();
-      saveGame();
-    }
-  });
-
-  // Upgrade CPS
-  upgradeCPSButton.addEventListener('click', () => {
-    if (cash >= 100) { // Example cost for CPS upgrade
-      cash -= 100;
-      cps += 1; // Increase CPS
-      alert('CPS upgraded!');
-      checkUpgrades();
-      saveGame();
-    }
-  });
-
-  // Rebirth
-  rebirthButton.addEventListener('click', () => {
-    if (cash >= rebirthCost) {
-      cash -= rebirthCost;
-      rebirths += 1;
-      score = 0; // Reset score on rebirth
-      clickValue = Math.floor(clickValue * 1.5); // Increase click value on rebirth
-      rebirthCost *= 2; // Increase rebirth cost
-      rebirthSound.play();
-      alert(`Rebirth successful! Total Rebirths: ${rebirths}`);
-
-      cashDisplay.textContent = cash;
-      scoreDisplay.textContent = score;
-      rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
-      checkUpgrades();
-      saveGame();
-    }
-  });
-
-  // Reset Data
-  resetButton.addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset all data?')) {
-      score = 0;
-      cash = 0;
-      clickValue = 1;
-      upgradeClickCost = 10;
-      rebirthCost = 1000;
-      rebirths = 0;
-      feverMode = false;
-
-      scoreDisplay.textContent = score;
-      cashDisplay.textContent = cash;
-      cpsDisplay.textContent = cps;
-      rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
-      backgroundMusic.currentTime = 0; // Reset music
-      backgroundMusic.play(); // Play background music again
-      checkUpgrades();
-      saveGame();
-    }
-  });
-
-  // Upgrades
-  upgradeClickButton.addEventListener('click', () => {
-    if (cash >= upgradeClickCost) {
-      cash -= upgradeClickCost;
-      clickValue += 1; // Increase click value
-      upgradeClickCost *= 2; // Increase cost for next upgrade
-      alert('Click value increased!');
-
-      cashDisplay.textContent = cash;
-      checkUpgrades();
-      saveGame();
-    }
-  });
 
   // Check Upgrades
   function checkUpgrades() {
     upgradeClickButton.disabled = cash < upgradeClickCost;
-    autoclickerButton.disabled = autoclickerActive; // Disable if already purchased
-    upgradeCPSButton.disabled = cash < 100; // Example cost for CPS upgrade
+    autoclickerButton.disabled = cash < 50;
+    upgradeCPSButton.disabled = cash < 100;
     rebirthButton.disabled = cash < rebirthCost;
+
+    upgradeClickButton.textContent = `Upgrade Click ($${upgradeClickCost})`;
+    autoclickerButton.textContent = `Autoclicker ($50)`;
+    upgradeCPSButton.textContent = `Upgrade CPS ($100)`;
+    rebirthButton.textContent = `Rebirth ($${rebirthCost})`;
   }
 
-  // Save Game
+  // Save and Load Game
   function saveGame() {
     localStorage.setItem('osaka_clicker', JSON.stringify({
       score,
@@ -193,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  // Load Game
   function loadGame() {
     const savedGame = JSON.parse(localStorage.getItem('osaka_clicker'));
     if (savedGame) {
@@ -203,52 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
       upgradeClickCost = savedGame.upgradeClickCost;
       rebirthCost = savedGame.rebirthCost;
       rebirths = savedGame.rebirths;
-      scoreDisplay.textContent = score;
-      cashDisplay.textContent = cash;
-      rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
       checkUpgrades();
     }
   }
 
-  // Import Data
-  document.getElementById('import-button').addEventListener('click', () => {
-    const fileInput = document.getElementById('file-input');
-    fileInput.click();
-    fileInput.onchange = (event) => {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const importedData = JSON.parse(e.target.result);
-        score = importedData.score;
-        cash = importedData.cash;
-        clickValue = importedData.clickValue;
-        upgradeClickCost = importedData.upgradeClickCost;
-        rebirthCost = importedData.rebirthCost;
-        rebirths = importedData.rebirths;
-        scoreDisplay.textContent = score;
-        cashDisplay.textContent = cash;
-        rebirthButton.textContent = `Rebirth (Cost: $${rebirthCost})`;
-        checkUpgrades();
-      };
-      reader.readAsText(file);
-    };
-  });
-
-  // Export Data
-  document.getElementById('export-button').addEventListener('click', () => {
-    const gameData = { score, cash, clickValue, upgradeClickCost, rebirthCost, rebirths };
-    const jsonData = JSON.stringify(gameData);
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href
-
- = url;
-    a.download = 'osaka_clicker_save.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
   loadGame();
-  backgroundMusic.play(); // Start background music
+  backgroundMusic.play();
 });
