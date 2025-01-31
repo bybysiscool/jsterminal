@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const upgradeCPSButton = document.getElementById('upgradeCPS');
   const rebirthButton = document.getElementById('rebirth-button');
   const resetButton = document.getElementById('reset-button');
-  const clickEffectContainer = document.getElementById('click-effect-container');
 
   // Clicking Osaka Button
   osakaButton.addEventListener('click', (e) => {
@@ -41,8 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
     clickSound.currentTime = 0;
     clickSound.play();
 
-    // Click effect
-    showClickEffect(e.clientX, e.clientY);
+    // Change image briefly
+    osakaButton.src = 'osakam.png';
+    setTimeout(() => {
+      osakaButton.src = 'osaka_idle.png';
+    }, 100);
+
+    // Show new floating click effect
+    createClickEffect(e.clientX, e.clientY, `+${clickValue}`);
+
+    // Calculate CPS
+    let currentTime = Date.now();
+    if (lastClickTime) {
+      let timeDiff = (currentTime - lastClickTime) / 1000;
+      cps = (1 / timeDiff).toFixed(2);
+      cpsDisplay.textContent = cps;
+    }
+    lastClickTime = currentTime;
 
     // Fever mode activation
     if (feverMode) {
@@ -51,42 +65,115 @@ document.addEventListener('DOMContentLoaded', () => {
       feverSound.play();
     }
 
-    checkUpgrades();
+    updateButtonPrices();
     saveGame();
   });
 
-  // Improved Click Effect
-  function showClickEffect(x, y) {
+  // Improved Click Effect Function
+  function createClickEffect(x, y, text) {
     const effect = document.createElement('div');
-    effect.classList.add('click-effect');
+    effect.className = 'click-effect';
+    effect.textContent = text;
+    document.body.appendChild(effect);
+
     effect.style.left = `${x}px`;
     effect.style.top = `${y}px`;
-    clickEffectContainer.appendChild(effect);
 
     setTimeout(() => {
       effect.style.opacity = '0';
-      effect.style.transform = 'scale(1.5)';
-    }, 50);
+      effect.style.transform = 'translateY(-50px)';
+    }, 100);
 
     setTimeout(() => {
       effect.remove();
     }, 500);
   }
 
-  // Check Upgrades
-  function checkUpgrades() {
+  // Autoclicker Logic
+  let autoclickerActive = false;
+  autoclickerButton.addEventListener('click', () => {
+    if (cash >= 50) {
+      cash -= 50;
+      autoclickerActive = true;
+      alert('Autoclicker activated!');
+      setInterval(() => {
+        score += 1;
+        cash += 1;
+        scoreDisplay.textContent = score;
+        cashDisplay.textContent = cash;
+      }, 1000);
+      updateButtonPrices();
+      saveGame();
+    }
+  });
+
+  // Upgrade CPS
+  upgradeCPSButton.addEventListener('click', () => {
+    if (cash >= 100) {
+      cash -= 100;
+      cps += 1;
+      alert('CPS upgraded!');
+      updateButtonPrices();
+      saveGame();
+    }
+  });
+
+  // Rebirth
+  rebirthButton.addEventListener('click', () => {
+    if (cash >= rebirthCost) {
+      cash -= rebirthCost;
+      rebirths += 1;
+      score = 0;
+      clickValue = Math.floor(clickValue * 1.5);
+      rebirthCost *= 2;
+      rebirthSound.play();
+      alert(`Rebirth successful! Total Rebirths: ${rebirths}`);
+      updateButtonPrices();
+      saveGame();
+    }
+  });
+
+  // Reset Data
+  resetButton.addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset all data?')) {
+      score = 0;
+      cash = 0;
+      clickValue = 1;
+      upgradeClickCost = 10;
+      rebirthCost = 1000;
+      rebirths = 0;
+      feverMode = false;
+      backgroundMusic.currentTime = 0;
+      backgroundMusic.play();
+      updateButtonPrices();
+      saveGame();
+    }
+  });
+
+  // Upgrade Click Value
+  upgradeClickButton.addEventListener('click', () => {
+    if (cash >= upgradeClickCost) {
+      cash -= upgradeClickCost;
+      clickValue += 1;
+      upgradeClickCost *= 2;
+      alert('Click value increased!');
+      updateButtonPrices();
+      saveGame();
+    }
+  });
+
+  // Update Button Prices Dynamically
+  function updateButtonPrices() {
+    upgradeClickButton.textContent = `Upgrade Click ($${upgradeClickCost})`;
+    rebirthButton.textContent = `Rebirth ($${rebirthCost})`;
+
     upgradeClickButton.disabled = cash < upgradeClickCost;
-    autoclickerButton.disabled = cash < 50;
+    autoclickerButton.disabled = autoclickerActive;
     upgradeCPSButton.disabled = cash < 100;
     rebirthButton.disabled = cash < rebirthCost;
-
-    upgradeClickButton.textContent = `Upgrade Click ($${upgradeClickCost})`;
-    autoclickerButton.textContent = `Autoclicker ($50)`;
-    upgradeCPSButton.textContent = `Upgrade CPS ($100)`;
-    rebirthButton.textContent = `Rebirth ($${rebirthCost})`;
   }
 
-  // Save and Load Game
+  // Save Game
   function saveGame() {
     localStorage.setItem('osaka_clicker', JSON.stringify({
       score,
@@ -98,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
+  // Load Game
   function loadGame() {
     const savedGame = JSON.parse(localStorage.getItem('osaka_clicker'));
     if (savedGame) {
@@ -107,9 +195,43 @@ document.addEventListener('DOMContentLoaded', () => {
       upgradeClickCost = savedGame.upgradeClickCost;
       rebirthCost = savedGame.rebirthCost;
       rebirths = savedGame.rebirths;
-      checkUpgrades();
+      updateButtonPrices();
     }
   }
+
+  // Import Data
+  document.getElementById('import-button').addEventListener('click', () => {
+    const fileInput = document.getElementById('file-input');
+    fileInput.click();
+    fileInput.onchange = (event) => {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const importedData = JSON.parse(e.target.result);
+        score = importedData.score;
+        cash = importedData.cash;
+        clickValue = importedData.clickValue;
+        upgradeClickCost = importedData.upgradeClickCost;
+        rebirthCost = importedData.rebirthCost;
+        rebirths = importedData.rebirths;
+        updateButtonPrices();
+      };
+      reader.readAsText(file);
+    };
+  });
+
+  // Export Data
+  document.getElementById('export-button').addEventListener('click', () => {
+    const gameData = { score, cash, clickValue, upgradeClickCost, rebirthCost, rebirths };
+    const jsonData = JSON.stringify(gameData);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'osaka_clicker_save.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 
   loadGame();
   backgroundMusic.play();
