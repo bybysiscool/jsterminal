@@ -1,46 +1,93 @@
+/* General Styles */
 body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
   text-align: center;
-  background-color: #f0f0f0; /* Azumanga Daioh themed background */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-#title {
-  font-size: 2em; /* Title size */
-  color: #ff6347; /* Azumanga Daioh color theme */
+/* Container */
+.container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
 }
 
-img {
+/* Title */
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Osaka Image */
+.osaka-container {
+  position: relative;
+  display: inline-block;
+}
+#osaka {
+  width: 200px;
   cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s ease-in-out;
+}
+#osaka:active {
+  transform: scale(0.95);
 }
 
-button {
-  margin: 10px;
-  padding: 15px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 200px; /* Increase button size */
-}
-
-#click-effect {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  background-color: rgba(255, 215, 0, 0.8);
-  border-radius: 50%;
-  display: none;
+/* Prevent Dragging */
+img[draggable="false"] {
   pointer-events: none;
 }
 
-.click-effect-animate {
-  animation: click-effect 0.3s ease-out;
+/* Stats Display */
+.stats {
+  font-size: 18px;
+  margin-top: 15px;
+}
+.stats p {
+  margin: 5px 0;
 }
 
-@keyframes click-effect {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
+/* Buttons */
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+button:hover {
+  background-color: #0056b3;
+}
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Click Effect */
+.click-effect {
+  position: absolute;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff5733;
+  opacity: 1;
+  pointer-events: none;
+  transition: transform 0.5s, opacity 0.5s;
 }
