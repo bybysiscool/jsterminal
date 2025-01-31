@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let rebirthCost = 1000;
   let autoclickerActive = false;
   let autoclickerInterval = null;
+  let hasInteracted = false;
 
   // Selectors
   const scoreDisplay = document.getElementById('score');
@@ -19,6 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const clickSound = document.getElementById('click-sound');
   const rebirthSound = document.getElementById('rebirth-sound');
   const backgroundMusic = document.getElementById('background-music');
+
+  // Function to start music on first user interaction
+  function startMusic() {
+    if (!hasInteracted) {
+      backgroundMusic.play().catch(error => console.log('Autoplay prevented:', error));
+      hasInteracted = true;
+      document.removeEventListener('click', startMusic);
+    }
+  }
+
+  // Wait for user interaction before playing music
+  document.addEventListener('click', startMusic);
 
   // Load Game from LocalStorage
   function loadGame() {
@@ -67,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cash += clickValue;
     updateUI();
     
-    // Play click sound
     clickSound.currentTime = 0;
     clickSound.play();
     
@@ -96,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Function to Start Autoclicker
+  // Start Autoclicker
   function startAutoclicker() {
     autoclickerInterval = setInterval(() => {
       score += 1;
@@ -131,27 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Reset Game
   resetButton.addEventListener('click', () => {
     if (confirm('Are you sure you want to reset all data?')) {
-      score = 0;
-      cash = 0;
-      clickValue = 1;
-      upgradeClickCost = 10;
-      rebirthCost = 1000;
-      autoclickerActive = false;
-
-      // Stop Autoclicker
-      if (autoclickerInterval) {
-        clearInterval(autoclickerInterval);
-        autoclickerInterval = null;
-      }
-
-      updateUI();
-      saveGame();
+      localStorage.removeItem('osaka_clicker');
+      location.reload();
     }
   });
 
-  // Start Background Music
-  backgroundMusic.play();
-
-  // Load saved game data
   loadGame();
 });
