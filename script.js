@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let clickValue = 1;
   let upgradeClickCost = 10;
   let rebirthCost = 1000;
+  let autoclickerActive = false;
+  let autoclickerInterval = null;
 
   // Selectors
   const scoreDisplay = document.getElementById('score');
@@ -27,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
       clickValue = savedGame.clickValue;
       upgradeClickCost = savedGame.upgradeClickCost;
       rebirthCost = savedGame.rebirthCost;
+      autoclickerActive = savedGame.autoclickerActive || false;
+
+      if (autoclickerActive) {
+        startAutoclicker();
+      }
+
       updateUI();
     }
   }
@@ -38,7 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
       cash,
       clickValue,
       upgradeClickCost,
-      rebirthCost
+      rebirthCost,
+      autoclickerActive
     }));
   }
 
@@ -47,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scoreDisplay.textContent = score;
     cashDisplay.textContent = cash;
     upgradeClickButton.disabled = cash < upgradeClickCost;
-    autoclickerButton.disabled = cash < 50;
+    autoclickerButton.disabled = autoclickerActive || cash < 50;
     upgradeCPSButton.disabled = cash < 100;
     rebirthButton.disabled = cash < rebirthCost;
   }
@@ -78,18 +87,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Buy Autoclicker
   autoclickerButton.addEventListener('click', () => {
-    if (cash >= 50) {
+    if (cash >= 50 && !autoclickerActive) {
       cash -= 50;
+      autoclickerActive = true;
+      startAutoclicker();
       updateUI();
-      alert('Autoclicker activated!');
-      setInterval(() => {
-        score += 1;
-        cash += 1;
-        updateUI();
-        saveGame();
-      }, 1000);
+      saveGame();
     }
   });
+
+  // Function to Start Autoclicker
+  function startAutoclicker() {
+    autoclickerInterval = setInterval(() => {
+      score += 1;
+      cash += 1;
+      updateUI();
+      saveGame();
+    }, 1000);
+  }
 
   // Upgrade CPS
   upgradeCPSButton.addEventListener('click', () => {
@@ -115,12 +130,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reset Game
   resetButton.addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset?')) {
+    if (confirm('Are you sure you want to reset all data?')) {
       score = 0;
       cash = 0;
       clickValue = 1;
       upgradeClickCost = 10;
       rebirthCost = 1000;
+      autoclickerActive = false;
+
+      // Stop Autoclicker
+      if (autoclickerInterval) {
+        clearInterval(autoclickerInterval);
+        autoclickerInterval = null;
+      }
+
       updateUI();
       saveGame();
     }
