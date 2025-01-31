@@ -64,7 +64,7 @@ img[draggable="false"] {
   margin-top: 20px;
 }
 button {
-  background-color: #007bff;
+  background-color: #ff69b4; /* Pink color */
   color: white;
   border: none;
   padding: 12px;
@@ -74,20 +74,9 @@ button {
   transition: background 0.3s;
 }
 button:hover {
-  background-color: #0056b3;
+  background-color: #ff1493; /* Darker pink */
 }
 button:disabled {
-  background-color: #cccccc;
+  background-color: #ccc;
   cursor: not-allowed;
-}
-
-/* Click Effect */
-.click-effect {
-  position: absolute;
-  font-size: 20px;
-  font-weight: bold;
-  color: #ff5733;
-  opacity: 1;
-  pointer-events: none;
-  transition: transform 0.5s, opacity 0.5s;
 }
